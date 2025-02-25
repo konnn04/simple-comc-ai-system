@@ -1,0 +1,96 @@
+/* Default style */
+.loader.style-0 {
+    width: 28px;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: #E3AAD6;
+    transform-origin: top;
+    display: grid;
+    animation: l3-0 1s infinite linear;
+  }
+  .loader.style-0::before,
+  .loader.style-0::after {
+    content: "";
+    grid-area: 1/1;
+    background: #F4DD51;
+    border-radius: 50%;
+    transform-origin: top;
+    animation: inherit;
+    animation-name: l3-1;
+  }
+  .loader.style-0::after {
+    background: #F10C49;
+    --s: 180deg;
+  }
+  @keyframes l3-0 {
+    0%, 20% { transform: rotate(0) }
+    100% { transform: rotate(360deg) }
+  }
+  @keyframes l3-1 {
+    50% { transform: rotate(var(--s, 90deg)) }
+    100% { transform: rotate(0) }
+  }
+  
+  /* Style 1 */
+  .loader.style-1 {
+    width: 60px;
+    aspect-ratio: 1;
+    display: flex;
+    --c1: linear-gradient(#554236 0 0);
+    --c2: linear-gradient(#F77825 0 0);
+    --s: calc(100%/3) calc(100%/3);
+    background:
+      var(--c1) 0 0, var(--c2) 50% 0, var(--c1) 100% 0,
+      var(--c2) 0 50%, var(--c2) 100% 50%,
+      var(--c1) 0 100%, var(--c2) 50% 100%, var(--c1) 100% 100%;
+    background-repeat: no-repeat;
+    animation: l8-0 1.5s infinite alternate;
+  }
+  .loader.style-1:before {
+    content: "";
+    width: calc(100%/3);
+    height: calc(100%/3);
+    background: #60B99A;
+    animation: inherit;
+    animation-delay: 0s;
+    animation-name: l8-1;
+  }
+  @keyframes l8-0 {
+    0%, 12.49% { background-size: var(--s), 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0 }
+    12.5%, 24.9% { background-size: var(--s), var(--s), 0 0, 0 0, 0 0, 0 0, 0 0, 0 0 }
+    25%, 37.4% { background-size: var(--s), var(--s), var(--s), 0 0, 0 0, 0 0, 0 0, 0 0 }
+    37.5%, 49.9% { background-size: var(--s), var(--s), var(--s), 0 0, var(--s), 0 0, 0 0, 0 0 }
+    50%, 61.4% { background-size: var(--s), var(--s), var(--s), 0 0, var(--s), 0 0, 0 0, var(--s) }
+    62.5%, 74.9% { background-size: var(--s), var(--s), var(--s), 0 0, var(--s), 0 0, var(--s), var(--s) }
+    75%, 86.4% { background-size: var(--s), var(--s), var(--s), 0 0, var(--s), var(--s), var(--s), var(--s) }
+    87.5%, 100% { background-size: var(--s), var(--s), var(--s), var(--s), var(--s), var(--s), var(--s), var(--s) }
+  }
+  @keyframes l8-1 {
+    0%, 5% { transform: translate(0, 0) }
+    12.5% { transform: translate(100%, 0) }
+    25% { transform: translate(200%, 0) }
+    37.5% { transform: translate(200%, 100%) }
+    50% { transform: translate(200%, 200%) }
+    62.5% { transform: translate(100%, 200%) }
+    75% { transform: translate(0, 200%) }
+    87.5% { transform: translate(0, 100%) }
+    95%, 100% { transform: translate(100%, 100%) }
+  }
+  
+  /* Style 2 */
+  .loader.style-2 {
+    width: 50px;
+    padding: 8px;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: #25b09b;
+    --_m: 
+      conic-gradient(#0000 10%, #000),
+      linear-gradient(#000 0 0) content-box;
+    -webkit-mask: var(--_m);
+            mask: var(--_m);
+    -webkit-mask-composite: source-out;
+            mask-composite: subtract;
+    animation: l3 1s infinite linear;
+  }
+  @keyframes l3 { to { transform: rotate(1turn) } }
