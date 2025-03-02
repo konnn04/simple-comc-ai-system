@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Alert } from 'react-native';
 import { Form, Button, Container, Row, Col } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import { HOST } from '../../constants/server';
 
 
 export default function Register({ navigation }: any) {
@@ -33,7 +34,7 @@ export default function Register({ navigation }: any) {
     };
 
     try {
-      const response = await fetch('http://localhost:5000/auth/register', {
+      const response = await fetch(HOST+'/auth/register', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -6,32 +6,9 @@ import jwt
 import datetime
 from myapp.config import Config
 from flask_login import LoginManager, UserMixin, login_user, logout_user, current_user, login_required
-
+from myapp.utils.index import token_required 
 
 auth = Blueprint('auth', __name__)
-
-def token_required(f):
-    @wraps(f)
-    def decorated(*args, **kwargs):
-        token = None
-        if 'Authorization' in request.headers:
-            token = request.headers['Authorization'].split(" ")[1]
-        
-        if not token:
-            return jsonify({'message': 'Token is missing'}), 401
-        
-        try:
-            data = jwt.decode(token, Config.SECRET_KEY, algorithms=["HS256"])
-            current_user_id = data['user_id']
-            current_user_username = data['username']
-            exp = data['exp']
-            if exp < datetime.datetime.utcnow():
-                return jsonify({'message': 'Token has expired'}), 401
-        except:
-            return jsonify({'message': 'Token is invalid'}), 401
-            
-        return f(current_user_id, *args, **kwargs)
-    return decorated
 
 # Đăng ký
 @auth.route('/auth/register', methods=['POST'], description="Đăng ký tài khoản")
@@ -67,20 +44,18 @@ def auth_login():
     data = request.get_json()
     if not data or not data.get('usernameOrEmail') or not data.get('password'):
         return jsonify({'message': 'Missing email or password'}), 400
-    
     user = authenticate_user(data.get('usernameOrEmail'), data.get('password'))
-    
     if user:
         if user.is_active == False:
             return jsonify({'message': 'User is not active'}), 401
         token = jwt.encode({
             'user_id': user.id,
             'username': user.username,
-            'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=1)
+            'exp': datetime.datetime.utcnow() + datetime.timedelta(hours=24)
         }, Config.SECRET_KEY, algorithm="HS256")
         
         return jsonify({'token': token, 'fname': user.fname, 'lname': user.lname, 'avatar': user.avatar}), 200
-    return jsonify({'message': 'Username or password is incorrect'}),
+    return jsonify({'message': 'Username or password is incorrect'}), 401
 
 @auth.route('/login', methods=['GET', 'POST'], description="Đăng nhập với tài khoản nhân viên")
 def login():
@@ -101,6 +76,8 @@ def login():
 @auth.route('/auth/verify', methods=['GET'], description="Kiểm tra token")
 def auth_test():
     return jsonify({'message': 'Token is valid'}), 200
+
+
 
 # #############################################
 

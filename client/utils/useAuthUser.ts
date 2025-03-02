@@ -55,6 +55,7 @@ export const useAuthUser = () => {
         method: 'GET',
         headers: {
           Authorization: `Bearer ${token}`,
+          'ngrok-skip-browser-warning': 'true'
         },
       });
       if (response.ok) {

@@ -1,0 +1,1061 @@
+{
+    "total_questions": 96,
+    "questions": [
+      {
+        "question": "I want to go to _____ airport. Is it far?",
+        "options": [
+          "a",
+          "an",
+          "the",
+          "any"
+        ],
+        "correct_answer": 2,
+        "explanation": "\"The\" is used to refer to a specific airport, which is likely understood in the context. We use \"the\" when talking about something specific that both the speaker and listener know. For example: \"The London Heathrow Airport\"."
+      },
+      {
+        "question": "The train is leaving _____ platform 3.",
+        "options": [
+          "at",
+          "on",
+          "in",
+          "by"
+        ],
+        "correct_answer": 1,
+        "explanation": "We use \"on\" when referring to a specific platform at a train station. 'On' indicates a specific surface or location."
+      },
+      {
+        "question": "_____ is the best way to get to the city center?",
+        "options": [
+          "Who",
+          "What",
+          "When",
+          "Where"
+        ],
+        "correct_answer": 1,
+        "explanation": "\"What\" is used to ask about a method or way of doing something. The question is asking for a suggestion for the transportation method."
+      },
+      {
+        "question": "She took _____ bus because it was raining.",
+        "options": [
+          "him",
+          "her",
+          "hers",
+          "she"
+        ],
+        "correct_answer": 1,
+        "explanation": "\"Her\" is the correct possessive pronoun to use here because it's referencing the person \"she\". We need the reflexive pronoun to indicate that she is the subject taking the bus."
+      },
+      {
+        "question": "I can take the subway _____ I can also take a taxi.",
+        "options": [
+          "or",
+          "and",
+          "but",
+          "so"
+        ],
+        "correct_answer": 1,
+        "explanation": "\"And\" is used to connect two similar options or possibilities. The speaker is presenting two alternative options and joining them together. The correct use of 'and' implies adding another option."
+      },
+      {
+        "question": "My hotel is _____ the train station.",
+        "options": [
+          "near",
+          "far",
+          "between",
+          "on"
+        ],
+        "correct_answer": 0,
+        "explanation": "\"Near\" indicates that the hotel is located close to the train station. It's the most logical preposition to describe the hotel's location in relation to the train station. Far means that the hotel is a long distance from the train station."
+      },
+      {
+        "question": "Q: I want to download __________ app, but I need Wi-Fi.",
+        "options": [
+          "a",
+          "an",
+          "the",
+          "-"
+        ],
+        "correct_answer": 1,
+        "explanation": "Explanation: The correct answer is 'an'. 'App' starts with a vowel sound, so we use 'an' instead of 'a'."
+      },
+      {
+        "question": "Q: My computer is slow. I need to buy __________ new one.",
+        "options": [
+          "a",
+          "an",
+          "the",
+          "-"
+        ],
+        "correct_answer": 0,
+        "explanation": "Explanation: The correct answer is 'a'. 'New' starts with a consonant sound, so we use 'a'."
+      },
+      {
+        "question": "Q: Are you good __________ using Microsoft Word?",
+        "options": [
+          "at",
+          "on",
+          "in",
+          "to"
+        ],
+        "correct_answer": 0,
+        "explanation": "Explanation: The correct answer is 'at'. We use 'good at' to describe someone's skill in doing something."
+      },
+      {
+        "question": "Q: My phone is __________ the desk, next to the keyboard.",
+        "options": [
+          "in",
+          "on",
+          "at",
+          "under"
+        ],
+        "correct_answer": 1,
+        "explanation": "Explanation: The correct answer is 'on'. We use 'on' when something is placed on top of a surface."
+      },
+      {
+        "question": "Q: I can't print because __________ printer is not working.",
+        "options": [
+          "a",
+          "an",
+          "the",
+          "-"
+        ],
+        "correct_answer": 2,
+        "explanation": "Explanation: The correct answer is 'the'. 'The' is used because we are referring to a specific printer, presumably one that has already been mentioned or is understood."
+      },
+      {
+        "question": "Q: She likes to code __________ he prefers to design websites.",
+        "options": [
+          "but",
+          "and",
+          "so",
+          "or"
+        ],
+        "correct_answer": 0,
+        "explanation": "Explanation: The correct answer is 'but'. 'But' is used to show a contrast between two ideas. In this case, one person likes coding, and the other prefers designing websites."
+      },
+      {
+        "question": "Q: I want to watch ____ movie tonight. Which article is correct?",
+        "options": [
+          "a",
+          "an",
+          "the",
+          "some"
+        ],
+        "correct_answer": 0,
+        "explanation": "A) 'A' is correct because 'movie' starts with a consonant sound. 'An' is used before vowel sounds. 'The' is used for specific movies. 'Some' is for plural and uncountable nouns."
+      },
+      {
+        "question": "Q: In a game, you are ____ a team. Which preposition fits best?",
+        "options": [
+          "on",
+          "at",
+          "in",
+          "with"
+        ],
+        "correct_answer": 0,
+        "explanation": "A) 'On' is correct. We say 'on a team' to indicate membership. The other prepositions don't fit this context."
+      },
+      {
+        "question": "Q: I like playing video games, ____ my sister prefers board games.",
+        "options": [
+          "and",
+          "but",
+          "so",
+          "or"
+        ],
+        "correct_answer": 1,
+        "explanation": "B) 'But' is correct because it introduces a contrast between your preference for video games and your sister's preference for board games. 'And' would suggest similar preferences, 'so' would indicate a consequence, and 'or' would suggest a choice."
+      },
+      {
+        "question": "Q: The player won the game because ____ played very well.",
+        "options": [
+          "he",
+          "him",
+          "his",
+          "it"
+        ],
+        "correct_answer": 0,
+        "explanation": "A) 'He' is the correct pronoun because it's the subject of the verb 'played'. 'Him' is an object pronoun, 'his' is a possessive pronoun, and 'it' is generally used for objects or animals."
+      },
+      {
+        "question": "Q: After I finish this level, ____ I'll take a break.",
+        "options": [
+          "than",
+          "then",
+          "that",
+          "they're"
+        ],
+        "correct_answer": 1,
+        "explanation": "B) 'Then' is correct because it indicates a sequence of actions. 'Than' is used for comparisons, 'that' introduces a clause, and 'they're' is a contraction for 'they are'."
+      },
+      {
+        "question": "Q: Where is ____ new game? I can't find it!",
+        "options": [
+          "I",
+          "my",
+          "me",
+          "mine"
+        ],
+        "correct_answer": 1,
+        "explanation": "B) 'My' is correct because it is a possessive adjective that modifies 'new game'. 'I' is a subject pronoun, 'me' is an object pronoun, and 'mine' is a possessive pronoun used without a following noun."
+      },
+      {
+        "question": "What is the correct article to use when talking about Pho?",
+        "options": [
+          "A",
+          "An",
+          "The",
+          "No article needed"
+        ],
+        "correct_answer": 3,
+        "explanation": "\"Pho\" is a general noun. When talking about Pho in general, we don't need an article. For example, \"I like Pho.\" Không cần mạo từ khi nói về Phở nói chung."
+      },
+      {
+        "question": "Which preposition is correct? I'm going to visit Ha Long Bay _______ my holiday.",
+        "options": [
+          "on",
+          "at",
+          "in",
+          "with"
+        ],
+        "correct_answer": 0,
+        "explanation": "The correct preposition is \"on\". We say \"on my holiday\" to indicate when the action takes place. Ví dụ: \"I'm going to visit Ha Long Bay on my holiday.\" (Tôi sẽ đi thăm Vịnh Hạ Long vào kỳ nghỉ của tôi.)"
+      },
+      {
+        "question": "My friend from America wants to try 'Banh Mi'. _______ she goes to Vietnam, I will take her to my favourite street food vendor.",
+        "options": [
+          "But",
+          "So",
+          "If",
+          "Because"
+        ],
+        "correct_answer": 2,
+        "explanation": "The correct conjunction is \"If\". It shows a condition. The sentence means, \"If she goes to Vietnam, I will take her...\" (Nếu cô ấy đến Việt Nam, tôi sẽ đưa cô ấy...). The sentence shows a condition/result: the result is conditional on her going to Vietnam."
+      },
+      {
+        "question": "Lan showed me her Ao Dai. _______ is very beautiful.",
+        "options": [
+          "She",
+          "It",
+          "He",
+          "They"
+        ],
+        "correct_answer": 1,
+        "explanation": "\"It\" is the correct pronoun to refer back to a singular, inanimate object, which in this case is the Ao Dai. Ví dụ: \"Lan showed me her Ao Dai. It is very beautiful.\" (Lan cho tôi xem áo dài của cô ấy. Nó rất đẹp.)"
+      },
+      {
+        "question": "What's the correct way to ask someone if they like Vietnamese coffee?",
+        "options": [
+          "Do you like Vietnamese coffee?",
+          "You like Vietnamese coffee?",
+          "Are you like Vietnamese coffee?",
+          "Have you like Vietnamese coffee?"
+        ],
+        "correct_answer": 0,
+        "explanation": "\"Do you like Vietnamese coffee?\" is the correct way to form a question in the simple present tense. This uses the auxiliary verb \"do\" to form the question. \"Bạn có thích cà phê Việt Nam không?\""
+      },
+      {
+        "question": "I want to learn more about Vietnamese culture _______ I can understand my girlfriend's family better.",
+        "options": [
+          "and",
+          "or",
+          "so that",
+          "but"
+        ],
+        "correct_answer": 2,
+        "explanation": "\"So that\" expresses a purpose. The speaker wants to learn about Vietnamese culture *for the purpose of* understanding their girlfriend's family better. Ví dụ: \"I want to learn more about Vietnamese culture so that I can understand my girlfriend's family better.\" (Tôi muốn tìm hiểu thêm về văn hóa Việt Nam để có thể hiểu rõ hơn về gia đình bạn gái tôi.)"
+      },
+      {
+        "question": "I want to buy _______ new phone. Which article is correct?",
+        "options": [
+          "a",
+          "an",
+          "the",
+          "no article"
+        ],
+        "correct_answer": 0,
+        "explanation": "The correct article is 'a' because 'phone' starts with a consonant sound. 'A' is used before consonant sounds. 'An' is used before vowel sounds. 'The' refers to a specific phone. 'No article' isn't correct here because we're introducing a singular, non-specific phone."
+      },
+      {
+        "question": "She is interested _______ learning about the stock market.",
+        "options": [
+          "in",
+          "at",
+          "on",
+          "to"
+        ],
+        "correct_answer": 0,
+        "explanation": "The correct preposition is 'in'. We use 'interested in' to describe someone's interest in a topic. 'At,' 'on,' and 'to' are not the correct prepositions to use with 'interested' in this context."
+      },
+      {
+        "question": "The company is growing fast, _______ they need to hire more people.",
+        "options": [
+          "but",
+          "so",
+          "or",
+          "if"
+        ],
+        "correct_answer": 1,
+        "explanation": "The correct conjunction is 'so'. It shows the result of the company's growth. Because the company is growing fast, the consequence is they need to hire more people. 'But' shows contrast, 'or' shows a choice, and 'if' introduces a condition."
+      },
+      {
+        "question": "My friend told me about a new app. _______ downloaded it yesterday.",
+        "options": [
+          "He",
+          "She",
+          "It",
+          "They"
+        ],
+        "correct_answer": 2,
+        "explanation": "The correct pronoun is 'It' because we're referring to the app, which is a thing. 'He' and 'She' are used for people, and 'They' is used for plural subjects or when the gender is unknown or irrelevant."
+      },
+      {
+        "question": "I am _______ than my sister about starting a business.",
+        "options": [
+          "more excite",
+          "exciting",
+          "more excited",
+          "most excited"
+        ],
+        "correct_answer": 2,
+        "explanation": "The correct phrase is 'more excited'. 'Excited' describes a feeling, and we use 'more' with it to show a comparison. 'More excite' is grammatically incorrect, 'exciting' describes something that causes excitement, and 'most excited' suggests being the most excited of a group."
+      },
+      {
+        "question": "_______ watches online videos about the latest tech trends.",
+        "options": [
+          "Every",
+          "Someone",
+          "Any",
+          "Some"
+        ],
+        "correct_answer": 1,
+        "explanation": "The most fitting pronoun is 'Someone' indicates an unspecified person is performing the action. 'Every' requires a noun ('Every *person*'). 'Any' usually appears in questions or negative statements, and 'Some' requires a noun or a plural verb ('Some *people* watch')."
+      },
+      {
+        "question": "I sent ___ email to my friend yesterday.",
+        "options": [
+          "the",
+          "a",
+          "an",
+          "some"
+        ],
+        "correct_answer": 2,
+        "explanation": "The correct answer is 'an' because 'email' starts with a vowel sound. We use 'an' before words that start with vowel sounds (a, e, i, o, u). 'A' is used before consonant sounds. 'The' is used for specific or known nouns, and 'some' is used for plural or uncountable nouns."
+      },
+      {
+        "question": "Are you ___ Instagram?",
+        "options": [
+          "in",
+          "on",
+          "at",
+          "to"
+        ],
+        "correct_answer": 1,
+        "explanation": "The correct answer is 'on'. We use 'on' with social media platforms like Instagram, Facebook, and Twitter (e.g., 'I am on Facebook'). 'In', 'at', and 'to' are not the correct prepositions in this context."
+      },
+      {
+        "question": "I'm going to post ___ photo of my cat.",
+        "options": [
+          "some",
+          "a",
+          "the",
+          "any"
+        ],
+        "correct_answer": 1,
+        "explanation": "The correct answer is 'a' because 'photo' is a singular, countable noun, and it's the first time it's mentioned. Therefore, we use the indefinite article 'a'. 'Some' is used for plural or uncountable nouns. 'The' would imply we're talking about a specific photo, and 'any' is generally used in questions or negative statements."
+      },
+      {
+        "question": "She likes to chat online, ___ she doesn't like video calls.",
+        "options": [
+          "and",
+          "but",
+          "so",
+          "or"
+        ],
+        "correct_answer": 2,
+        "explanation": "The correct answer is 'but'. 'But' is a conjunction used to connect two contrasting ideas. The sentence expresses that she likes chatting online, but she dislikes video calls, which are contrasting preferences. 'And' joins similar ideas, 'so' shows a result, and 'or' presents alternatives."
+      },
+      {
+        "question": "My sister showed me ___ new phone. It's really cool!",
+        "options": [
+          "her",
+          "his",
+          "their",
+          "our"
+        ],
+        "correct_answer": 0,
+        "explanation": "The correct answer is 'her' because the subject is 'My sister', who is female. 'Her' is the possessive pronoun that corresponds to a female singular noun. 'His' is for male subjects, 'their' is for plural subjects, and 'our' refers to something belonging to 'us'."
+      },
+      {
+        "question": "I told ___ about the party on Discord.",
+        "options": [
+          "everybody",
+          "nobody",
+          "anybody",
+          "somebody"
+        ],
+        "correct_answer": 3,
+        "explanation": "The correct answer is 'somebody'. It implies that the speaker informed at least one person about the party, without being specific about who they were. 'Everybody' suggests informing all possible recipients, 'nobody' indicates informing no one which contradicts the intent, and 'anybody' usually implies a question such as 'Did I tell anybody?'"
+      },
+      {
+        "question": "Lan is ______ IT student at Ho Chi Minh City Open University. She loves coding.",
+        "options": [
+          "a",
+          "an",
+          "the",
+          "some"
+        ],
+        "correct_answer": 1,
+        "explanation": "\"An\" is used before words that start with a vowel sound. \"IT\" is pronounced with a vowel sound at the beginning (like \"I\"). A, the and some are incorrect because they don't follow this rule."
+      },
+      {
+        "question": "Nam and Hung are working ______ a project together in the lab.",
+        "options": [
+          "on",
+          "at",
+          "in",
+          "to"
+        ],
+        "correct_answer": 0,
+        "explanation": "The correct preposition is \"on\" because we use \"work on\" to indicate that someone is doing a specific task or project. The other prepositions (at, in, to) don't fit the context of doing a project."
+      },
+      {
+        "question": "Minh wants to study abroad, ______ he needs to improve his English.",
+        "options": [
+          "so",
+          "but",
+          "or",
+          "because"
+        ],
+        "correct_answer": 0,
+        "explanation": "\"So\" is used to show a result or consequence. Minh wants to study abroad, and as a result, he needs to improve his English. \"But\" indicates a contrast, \"or\" offers a choice, and \"because\" introduces a reason. None of these fit the context as well as \"so\"."
+      },
+      {
+        "question": "This is my friend, Thuy. ______ is in my programming class.",
+        "options": [
+          "He",
+          "She",
+          "It",
+          "They"
+        ],
+        "correct_answer": 1,
+        "explanation": "The pronoun \"She\" is used to refer to a female. Since Thuy is a female name, \"She\" is the correct pronoun. The other pronouns don't match the gender of the person being referred to."
+      },
+      {
+        "question": "We are going to the library ______ study for the exam tomorrow.",
+        "options": [
+          "for",
+          "to",
+          "at",
+          "in"
+        ],
+        "correct_answer": 1,
+        "explanation": "\"To\" is used to express purpose or reason. In this sentence, \"to study\" explains why they are going to the library. \"For\" is also acceptable, but less common at the beginner level. \"at\" and \"in\" are not grammatically correct in this context."
+      },
+      {
+        "question": "My computer is old, ______ it still works well.",
+        "options": [
+          "and",
+          "but",
+          "so",
+          "because"
+        ],
+        "correct_answer": 1,
+        "explanation": "\"But\" is used to introduce a contrast or something unexpected. The sentence states the computer is old, but surprisingly, it still works well. This contrast makes \"but\" the appropriate choice. \"And\" adds information, \"so\" shows a result, and \"because\" gives a reason, none of which fit the context of the sentence."
+      },
+      {
+        "question": "I want to post _______ photo on Instagram. Is this _______ good picture?",
+        "options": [
+          "a / a",
+          "an / a",
+          "a / an",
+          "an / an"
+        ],
+        "correct_answer": 1,
+        "explanation": "'An' được sử dụng trước một từ bắt đầu bằng nguyên âm (a, e, i, o, u). 'A' được sử dụng trước một từ bắt đầu bằng phụ âm. Trong câu này, 'photo' bắt đầu bằng phụ âm 'p', nên dùng 'a'. 'Good' bắt đầu bằng phụ âm 'g', nên dùng 'a'."
+      },
+      {
+        "question": "My friend and I are going _______ coffee shop to talk about the drama on TikTok.",
+        "options": [
+          "in",
+          "at",
+          "to",
+          "on"
+        ],
+        "correct_answer": 2,
+        "explanation": "'To' được sử dụng để chỉ sự di chuyển đến một địa điểm cụ thể. Trong trường hợp này, họ đang đi đến quán cà phê."
+      },
+      {
+        "question": "She said she'll make a TikTok video _______ she finishes her homework.",
+        "options": [
+          "or",
+          "and",
+          "but",
+          "after"
+        ],
+        "correct_answer": 3,
+        "explanation": "'After' có nghĩa là 'sau khi', diễn tả thứ tự các hành động xảy ra. Cô ấy sẽ quay video TikTok sau khi hoàn thành bài tập về nhà."
+      },
+      {
+        "question": "I saw _______ post about the new cafe. _______ looks really cool!",
+        "options": [
+          "a / It",
+          "an / He",
+          "a / She",
+          "an / It"
+        ],
+        "correct_answer": 0,
+        "explanation": "'A' được sử dụng trước 'post' vì 'post' bắt đầu bằng phụ âm. 'It' được sử dụng để thay thế cho 'post' (một vật)."
+      },
+      {
+        "question": "_______ favorite influencer is doing a livestream tonight. Are you going to watch _______?",
+        "options": [
+          "My / it",
+          "Your / it",
+          "My / him",
+          "Your / her"
+        ],
+        "correct_answer": 2,
+        "explanation": "'My' chỉ sự sở hữu của 'tôi'. Giả sử influencer này là nam, ta dùng 'him' để thay thế."
+      },
+      {
+        "question": "We should meet up soon. _______ are you free next week?",
+        "options": [
+          "What",
+          "When",
+          "Where",
+          "Who"
+        ],
+        "correct_answer": 1,
+        "explanation": "'When' được sử dụng để hỏi về thời gian. Trong trường hợp này, ta muốn biết khi nào người đó rảnh vào tuần tới."
+      },
+      {
+        "question": "Q: What is a 'ticket' used for when you travel?",
+        "options": [
+          "A) To carry your bags",
+          "B) To show you have paid for your trip",
+          "C) To ask for directions",
+          "D) To eat your lunch"
+        ],
+        "correct_answer": 1,
+        "explanation": "B) is correct. A 'ticket' proves you have paid to travel on a bus, train, plane, etc. The other options are not related to the purpose of a ticket."
+      },
+      {
+        "question": "Q: Which of these is a place where planes take off and land?",
+        "options": [
+          "A) A library",
+          "B) A restaurant",
+          "C) An airport",
+          "D) A supermarket"
+        ],
+        "correct_answer": 2,
+        "explanation": "C) is correct. An 'airport' is where airplanes arrive and depart. The other options are not related to air travel."
+      },
+      {
+        "question": "Q: If you are 'on time', what does it mean?",
+        "options": [
+          "A) You are late",
+          "B) You are early",
+          "C) You are not late or early",
+          "D) You are very tired"
+        ],
+        "correct_answer": 2,
+        "explanation": "C) is correct. 'On time' means you arrive at the expected or scheduled time. It's neither late nor early."
+      },
+      {
+        "question": "Q: Choose the word that means the OPPOSITE of 'arrival'.",
+        "options": [
+          "A) Departure",
+          "B) Journey",
+          "C) Stop",
+          "D) Visit"
+        ],
+        "correct_answer": 0,
+        "explanation": "A) is correct. 'Departure' means leaving, which is the opposite of 'arrival' (arriving). The other options are related to travel but not the direct opposite of arrival."
+      },
+      {
+        "question": "Q: 'Excuse me, where is the ______ stop?' What word BEST fits in the blank when asking for directions to use public transport?",
+        "options": [
+          "A) Banana",
+          "B) Bicycle",
+          "C) Bus",
+          "D) Book"
+        ],
+        "correct_answer": 2,
+        "explanation": "C) is correct. 'Bus stop' is the correct term for a place where you can catch a bus. The other options don't make sense in this context."
+      },
+      {
+        "question": "Q: What is another word for a 'trip'?",
+        "options": [
+          "A) Sleep",
+          "B) Journey",
+          "C) Food",
+          "D) Music"
+        ],
+        "correct_answer": 1,
+        "explanation": "B) is correct. 'Journey' is a synonym (a word with a similar meaning) for 'trip'. The other options are not related to travel."
+      },
+      {
+        "question": "Q: My computer is very _____. It takes a long time to open programs.",
+        "options": [
+          "fast",
+          "slow",
+          "new",
+          "old"
+        ],
+        "correct_answer": 1,
+        "explanation": "Explanation: 'Slow' means not quick. If a computer takes a long time to open programs, it is slow. 'Fast' is the opposite. 'New' and 'old' relate to age, not speed."
+      },
+      {
+        "question": "Q: Which of these is something you can click on a computer screen?",
+        "options": [
+          "Table",
+          "Button",
+          "Book",
+          "Window"
+        ],
+        "correct_answer": 1,
+        "explanation": "Explanation: A 'button' is an element on a screen that you can click. 'Table' is a piece of furniture. 'Book' is for reading. 'Window' is a feature but you don't 'click' a window (you might click inside it). Therefore, button is the most suitable answer."
+      },
+      {
+        "question": "Q: What do you need to connect to the internet at home?",
+        "options": [
+          "A mouse",
+          "A keyboard",
+          "A router",
+          "A printer"
+        ],
+        "correct_answer": 2,
+        "explanation": "Explanation: A 'router' connects your devices to the internet. A 'mouse' and 'keyboard' are input devices. A 'printer' prints documents."
+      },
+      {
+        "question": "Q: If your computer isn't working, you can _____ it. This often fixes problems.",
+        "options": [
+          "Restart",
+          "Eat",
+          "Sing",
+          "Draw"
+        ],
+        "correct_answer": 0,
+        "explanation": "Explanation: 'Restart' means to turn off and then turn on again. This can often solve computer problems. 'Eat', 'sing' and 'draw' are not related to fixing computers."
+      },
+      {
+        "question": "Q: Which of these is a type of computer file?",
+        "options": [
+          "House",
+          "Car",
+          "Photo",
+          "Plant"
+        ],
+        "correct_answer": 2,
+        "explanation": "Explanation: A 'photo' (photograph) is a type of file you can save on a computer. 'House,' 'car,' and 'plant' are real-world objects, not computer files."
+      },
+      {
+        "question": "Q: When you 'save' a document, you _____ it.",
+        "options": [
+          "Keep",
+          "Delete",
+          "Lose",
+          "Ignore"
+        ],
+        "correct_answer": 0,
+        "explanation": "Explanation: To 'save' a document means to keep it. The other options, 'delete,' 'lose,' and 'ignore' all suggest getting rid of the document or paying no attention to it."
+      },
+      {
+        "question": "Q: In a game, what do you usually do to win?",
+        "options": [
+          "A) Sleep",
+          "B) Play",
+          "C) Eat",
+          "D) Walk"
+        ],
+        "correct_answer": 1,
+        "explanation": "Explanation: The correct answer is 'Play' because the purpose of participating in a game is usually to 'play' in order to achieve victory. The other options are unrelated to the core activity of a game."
+      },
+      {
+        "question": "Q: If you 'watch' a movie, what are you doing?",
+        "options": [
+          "A) Cooking it",
+          "B) Looking at it",
+          "C) Reading it",
+          "D) Singing it"
+        ],
+        "correct_answer": 1,
+        "explanation": "Explanation: 'Watching' a movie means 'looking at it'. This is the standard meaning of the word 'watch' in the context of visual media like movies."
+      },
+      {
+        "question": "Q: Which word means almost the same as 'funny'?",
+        "options": [
+          "A) Sad",
+          "B) Happy",
+          "C) Serious",
+          "D) Amusing"
+        ],
+        "correct_answer": 3,
+        "explanation": "Explanation: 'Amusing' means causing laughter and providing entertainment, which is very similar to 'funny'. The other options have opposite or unrelated meanings."
+      },
+      {
+        "question": "Q: In many video games, you 'collect' items. What does 'collect' mean?",
+        "options": [
+          "A) To lose things",
+          "B) To gather things",
+          "C) To break things",
+          "D) To throw things"
+        ],
+        "correct_answer": 1,
+        "explanation": "Explanation: 'Collect' means to gather or accumulate items, usually for a specific purpose. In video games, you often 'collect' items to use them later."
+      },
+      {
+        "question": "Q: The opposite of 'win' is ____.",
+        "options": [
+          "A) Begin",
+          "B) Play",
+          "C) Lose",
+          "D) Game"
+        ],
+        "correct_answer": 2,
+        "explanation": "Explanation: The antonym (opposite) of 'win' is 'lose'. When you win, you are successful; when you lose, you are not successful."
+      },
+      {
+        "question": "Q: My favorite _________ is going to the cinema every week.",
+        "options": [
+          "A) Fruit",
+          "B) Hobby",
+          "C) Book",
+          "D) Shoe"
+        ],
+        "correct_answer": 1,
+        "explanation": "Explanation: A 'hobby' is an activity done regularly for enjoyment. Going to the cinema every week is a common example of a 'hobby'."
+      },
+      {
+        "question": "Q: What is 'Pho'?",
+        "options": [
+          "A type of fruit",
+          "A Vietnamese soup",
+          "A city in Vietnam",
+          "A traditional dance"
+        ],
+        "correct_answer": 1,
+        "explanation": "Correct: B) 'Pho' is a very popular Vietnamese noodle soup. The other options are incorrect; it is not a fruit, a city, or a dance."
+      },
+      {
+        "question": "Q: Which word is closest in meaning to 'delicious' when describing Vietnamese food?",
+        "options": [
+          "Bad",
+          "Tasty",
+          "Sour",
+          "Spicy"
+        ],
+        "correct_answer": 1,
+        "explanation": "Correct: B) 'Tasty' means almost the same as 'delicious'. 'Bad' is the opposite. 'Sour' and 'spicy' describe specific tastes but aren't synonyms for delicious."
+      },
+      {
+        "question": "Q: 'Ao Dai' is a traditional Vietnamese ________.",
+        "options": [
+          "Hat",
+          "Shirt",
+          "Dress",
+          "Shoe"
+        ],
+        "correct_answer": 2,
+        "explanation": "Correct: C) 'Ao Dai' is the name of a traditional Vietnamese dress. It is not a hat, shirt, or shoe."
+      },
+      {
+        "question": "Q: Many Vietnamese people visit _________ during Tet holiday.",
+        "options": [
+          "Mountains",
+          "Pagodas",
+          "Beaches",
+          "Cinemas"
+        ],
+        "correct_answer": 1,
+        "explanation": "Correct: B) Visiting pagodas (Buddhist temples) is a common activity for many Vietnamese people during Tet (Lunar New Year). While some might visit the other places, pagodas are most traditionally associated with Tet."
+      },
+      {
+        "question": "Q: What is a common way to greet someone in Vietnam? You can say...",
+        "options": [
+          "Hello, how are you?",
+          "Goodbye",
+          "Thank you",
+          "Sorry"
+        ],
+        "correct_answer": 0,
+        "explanation": "Correct: A) 'Hello, how are you?' is a common and polite greeting. The other options are used in different situations (farewell, expressing gratitude, apologizing)."
+      },
+      {
+        "question": "Q: 'Bun Cha' is a popular dish. 'Bun' means _________.",
+        "options": [
+          "Meat",
+          "Vegetables",
+          "Noodles",
+          "Sauce"
+        ],
+        "correct_answer": 2,
+        "explanation": "Correct: C) In 'Bun Cha', 'Bun' refers to rice vermicelli noodles. 'Cha' refers to grilled pork. Therefore, 'Bun' means noodles, not meat, vegetables, or sauce."
+      },
+      {
+        "question": "What does the word 'trend' mean in the sentence: 'This new phone is a popular trend right now.'?",
+        "options": [
+          "Something very old",
+          "Something nobody likes",
+          "Something popular at the moment",
+          "Something very expensive"
+        ],
+        "correct_answer": 2,
+        "explanation": "The correct answer is C. A 'trend' means something that is currently popular or fashionable. Options A, B, and D do not accurately describe what a trend is."
+      },
+      {
+        "question": "Which word is closest in meaning to 'cheap' when talking about prices?",
+        "options": [
+          "Expensive",
+          "Affordable",
+          "Costly",
+          "Valuable"
+        ],
+        "correct_answer": 1,
+        "explanation": "The correct answer is B. 'Affordable' means something is within a reasonable price range, which is similar to 'cheap'. 'Expensive' and 'Costly' are antonyms. 'Valuable' refers to worth, not price."
+      },
+      {
+        "question": "If someone says, 'That's a good deal!' in a store, what does 'deal' mean?",
+        "options": [
+          "A type of card game",
+          "An agreement or special offer",
+          "A type of wood",
+          "A difficult problem"
+        ],
+        "correct_answer": 1,
+        "explanation": "The correct answer is B. In this context, 'deal' refers to a beneficial agreement or a special offer, usually involving a lower price. The other options are incorrect meanings of the word 'deal'."
+      },
+      {
+        "question": "What does 'online shopping' mean?",
+        "options": [
+          "Buying things in a real store",
+          "Buying things using the internet",
+          "Selling things at a market",
+          "Making things yourself"
+        ],
+        "correct_answer": 1,
+        "explanation": "The correct answer is B. 'Online shopping' refers to buying products or services through the internet. The other options are incorrect."
+      },
+      {
+        "question": "What does 'in stock' mean in the sentence: 'This shirt is in stock in blue.'?",
+        "options": [
+          "It is very old.",
+          "It is not available.",
+          "It is available to buy.",
+          "It is very expensive."
+        ],
+        "correct_answer": 2,
+        "explanation": "The correct answer is C. 'In stock' means that the item is currently available for purchase. Option B is the opposite of 'in stock'."
+      },
+      {
+        "question": "Someone says: 'This product is very popular.' What is another way to say 'popular'?",
+        "options": [
+          "Unknown",
+          "Trendy",
+          "Disliked",
+          "Uncommon"
+        ],
+        "correct_answer": 1,
+        "explanation": "The correct answer is B. 'Trendy' is a synonym for 'popular,' meaning liked or well-received by many people. The other options are antonyms or have unrelated meanings."
+      },
+      {
+        "question": "Q: When you 'post' something on social media, what are you doing?",
+        "options": [
+          "A) Deleting it",
+          "B) Sharing it",
+          "C) Ignoring it",
+          "D) Hiding it"
+        ],
+        "correct_answer": 1,
+        "explanation": "Explanation: 'Posting' means sharing something (like a photo or message) for others to see. So, the correct answer is B) Sharing it. A, C, and D are actions that are the opposite of sharing."
+      },
+      {
+        "question": "Q: What does 'DM' usually mean on social media?",
+        "options": [
+          "A) Daily Meeting",
+          "B) Direct Message",
+          "C) Digital Marketing",
+          "D) Data Mining"
+        ],
+        "correct_answer": 1,
+        "explanation": "Explanation: 'DM' is a common abbreviation for 'Direct Message,' which is a private message sent directly to another user. Thus, B) Direct Message is the right answer."
+      },
+      {
+        "question": "Q: If someone 'unfollows' you, what does that mean?",
+        "options": [
+          "A) They started following you",
+          "B) They stopped following you",
+          "C) They blocked you",
+          "D) They sent you a message"
+        ],
+        "correct_answer": 1,
+        "explanation": "Explanation: To 'unfollow' someone means to stop seeing their posts in your feed. Therefore, B) They stopped following you is correct."
+      },
+      {
+        "question": "Q: Which of these words is closest in meaning to 'tag' in a social media post?",
+        "options": [
+          "A) Ignore",
+          "B) Mention",
+          "C) Delete",
+          "D) Hide"
+        ],
+        "correct_answer": 1,
+        "explanation": "Explanation: To 'tag' someone in a post is similar to 'mentioning' them, alerting them to the post. So, B) Mention is the best answer. A, C, and D are unrelated to tagging someone."
+      },
+      {
+        "question": "Q: Someone says: 'I'll text you later.' What will they do?",
+        "options": [
+          "A) Send you an email",
+          "B) Call you on the phone",
+          "C) Send you a message on their phone",
+          "D) Write you a letter"
+        ],
+        "correct_answer": 2,
+        "explanation": "Explanation: 'Text' is a short word for sending a message via SMS (Short Message Service) on a mobile phone. C) Send you a message on their phone is therefore correct."
+      },
+      {
+        "question": "Q: What is a common reaction to a funny post on social media?",
+        "options": [
+          "A) Commenting with 'LOL'",
+          "B) Reporting the post",
+          "C) Ignoring the post",
+          "D) Blocking the poster"
+        ],
+        "correct_answer": 0,
+        "explanation": "Explanation: 'LOL' (Laugh Out Loud) is a very common online expression to indicate you find something funny.  Therefore, A) Commenting with 'LOL' is correct. The other options represent negative or indifferent reactions."
+      },
+      {
+        "question": "Q: Lan is a 'freshman' at Ho Chi Minh City Open University. What does 'freshman' mean?",
+        "options": [
+          "A new teacher",
+          "A first-year student",
+          "A computer expert",
+          "A student who loves sports"
+        ],
+        "correct_answer": 1,
+        "explanation": "Explanation: 'Freshman' refers to a student in their first year of study, usually at a university or college. In this context, Lan is a student in her first year at the university."
+      },
+      {
+        "question": "Q: Hung is 'coding' all night. What does 'coding' mean?",
+        "options": [
+          "Writing emails",
+          "Playing games",
+          "Writing computer programs",
+          "Drawing pictures"
+        ],
+        "correct_answer": 2,
+        "explanation": "Explanation: 'Coding' refers to the process of writing instructions for computers, also known as programming. Hung is spending the night writing computer programs."
+      },
+      {
+        "question": "Q: Mai said, 'I need to back up my files'. What does 'back up' mean?",
+        "options": [
+          "To delete files",
+          "To make a copy of files",
+          "To send files to a friend",
+          "To change the name of files"
+        ],
+        "correct_answer": 1,
+        "explanation": "Explanation: 'Back up' means to create a copy of important files to prevent data loss. Mai wants to make a copy of her files."
+      },
+      {
+        "question": "Q: Nam is a 'geek' when it comes to computers. What does 'geek' mean in this sentence?",
+        "options": [
+          "Someone who dislikes computers",
+          "Someone who is very interested in and knowledgeable about a particular subject, especially technology.",
+          "Someone who is lazy",
+          "Someone who is bad at computers"
+        ],
+        "correct_answer": 1,
+        "explanation": "Explanation: 'Geek' refers to someone who is very enthusiastic and knowledgeable about technology or a specific subject. Nam is very interested in and knowledgeable about computers."
+      },
+      {
+        "question": "Q: Linh often uses 'the cloud' to store her data. What is 'the cloud'?",
+        "options": [
+          "A type of computer virus",
+          "Online storage space",
+          "A type of computer screen",
+          "A very fast computer"
+        ],
+        "correct_answer": 1,
+        "explanation": "Explanation: 'The cloud' refers to online storage services where you can save data and access it from different devices. Linh uses online storage for her data."
+      },
+      {
+        "question": "Q: 'Hardware' is a part of a computer. Which of these is an example of 'hardware'?",
+        "options": [
+          "A computer program",
+          "The internet",
+          "The physical parts of a computer, like the keyboard",
+          "A website"
+        ],
+        "correct_answer": 2,
+        "explanation": "Explanation: 'Hardware' refers to the physical components of a computer, such as the keyboard, mouse, and monitor. 'Hardware' is the opposite of 'software' (computer programs)."
+      },
+      {
+        "question": "Q: On Vietnamese social media, people often use 'chém gió'. What English word is closest in meaning to 'chém gió' (talking nonsense or exaggerating)?",
+        "options": [
+          "A) Hiking",
+          "B) Bragging",
+          "C) Cooking",
+          "D) Sleeping"
+        ],
+        "correct_answer": 1,
+        "explanation": "Correct: B) Bragging. 'Bragging' means talking proudly about yourself and exaggerating achievements, similar to the meaning of 'chém gió'."
+      },
+      {
+        "question": "Q: You see someone write ' đỉnh ' on a post about a beautiful photo. What does 'đỉnh' (in this context) MOST likely mean?",
+        "options": [
+          "A) Bad",
+          "B) Average",
+          "C) Excellent",
+          "D) Small"
+        ],
+        "correct_answer": 2,
+        "explanation": "Correct: C) Excellent. In online slang, 'đỉnh' is often used to express that something is amazing or top-notch, meaning excellent."
+      },
+      {
+        "question": "Q: Someone comments 'gato' on your new shoes. 'Gato' is slang for what feeling?",
+        "options": [
+          "A) Happiness",
+          "B) Sadness",
+          "C) Jealousy",
+          "D) Anger"
+        ],
+        "correct_answer": 2,
+        "explanation": "Correct: C) Jealousy. 'Gato' is a slang term derived from the Vietnamese pronunciation of 'ghen ăn tức ở' which is a very informal way to describe envy or jealousy."
+      },
+      {
+        "question": "Q: What does 'rep inbox' mean when someone asks you to do it?",
+        "options": [
+          "A) Post a photo",
+          "B) Reply to a message",
+          "C) Call someone",
+          "D) Delete a comment"
+        ],
+        "correct_answer": 1,
+        "explanation": "Correct: B) Reply to a message. 'Rep' is short for 'reply' and 'inbox' refers to the messages area on social media."
+      },
+      {
+        "question": "Q: If someone says 'add friend' on Facebook, what are they asking you to do?",
+        "options": [
+          "A) Delete their account.",
+          "B) Become friends with them online.",
+          "C) Block them from your page.",
+          "D) Report them to the police."
+        ],
+        "correct_answer": 1,
+        "explanation": "Correct: B) Become friends with them online. 'Add friend' is a common way to request someone to be your connection on the platform."
+      },
+      {
+        "question": "Q: Someone posts a photo of their meal with the caption: 'ngon xỉu '. Which word best describes what they mean?",
+        "options": [
+          "A) Delicious",
+          "B) Spicy",
+          "C) Expensive",
+          "D) Disgusting"
+        ],
+        "correct_answer": 0,
+        "explanation": "Correct: A) Delicious. The expression 'ngon xỉu' means extremely delicious (so delicious that you almost faint)."
+      }
+    ]
+  }

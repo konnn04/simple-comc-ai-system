@@ -1,17 +1,13 @@
 import React, { useState } from 'react';
 import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { useAuthUser } from '../utils/useAuthUser';
+import { handleLogout } from '../utils/api';
 
 export default function UserInfo({ navigation }: any) {
     const [username, setUsername] = useState('User');
     const [email, setEmail] = useState('user@example.com');
 
     const { clearAuthUser } = useAuthUser();
-
-    const handleLogout = async () => {
-        await clearAuthUser();
-        navigation.navigate('Auth', { screen: 'Login' });
-    }
 
     const handleUpdate = () => {
         alert('User info updated');
@@ -35,7 +31,7 @@ export default function UserInfo({ navigation }: any) {
             <TouchableOpacity style={styles.button} onPress={handleUpdate}>
                 <Text style={styles.buttonText}>Update Info</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
+            <TouchableOpacity style={styles.logoutButton} onPress={() => handleLogout(navigation)}>
                 <Text style={styles.logoutText}>Logout</Text>
             </TouchableOpacity>
         </View>

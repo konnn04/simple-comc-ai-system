@@ -5,6 +5,15 @@ from myapp.config import Config
 from flask_cors import CORS
 from myapp.constants.routes import route_store
 from flask_login import LoginManager, UserMixin, login_user, logout_user, current_user, login_required
+from dotenv import load_dotenv
+from myapp.tech.tts import KokoroTTS
+import os
+
+tts = KokoroTTS()
+
+root_app = os.path.dirname(os.path.abspath(__file__))
+
+load_dotenv()
 
 db = SQLAlchemy()
 admin = Admin(name='Admin', template_mode='bootstrap3')

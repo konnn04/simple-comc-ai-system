@@ -25,7 +25,7 @@
                         {% for d in docs %}
                         <tr>
                             <td>{{ loop.index }}</td>
-                            <td><code>{{ d.endpoint }}</code></td>
+                            <td><a href="{{ d.endpoint }}">{{ d.endpoint }}</a></td>
                             <td><span class="badge bg-primary">{{ d.methods }}</span></td>
                             <td>{{ d.description }}</td>
                         </tr>

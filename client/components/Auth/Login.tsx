@@ -3,6 +3,7 @@ import { Alert } from 'react-native';
 import { Form, Button, Container, Row, Col } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { useAuthUser } from '../../utils/useAuthUser';
+import { HOST } from '../../constants/server';
 
 interface LoginProps {
   navigation: any;
@@ -16,20 +17,30 @@ export default function Login({ navigation }: LoginProps) {
 
   const handleLogin = async () => {
     try {
-      const response = await fetch('http://localhost:5000/auth/login', {
+      const response = await fetch(HOST+'auth/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'ngrok-skip-browser-warning': 'true',
         },
         body: JSON.stringify({
           'usernameOrEmail': username,
           password,
         }),
       });
-
+      if (!response.ok) {
+        throw new Error('Invalid credentials');
+      }
       const data = await response.json();
       if (response.ok) {
-        await saveAuthUser({ token: data.token, fname: data.fname, lname: data.lname, avatar: data.avatar });
+        await saveAuthUser(
+          {
+            token: data.token,
+            fname: data.fname,
+            lname: data.lname,
+            avatar: data.avatar,
+          }
+        );
         navigation.navigate('Main');
       } else {
         // Alert.alert('Login Failed', data.message || 'Invalid credentials');

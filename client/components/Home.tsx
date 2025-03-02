@@ -8,12 +8,14 @@ interface HomeProps {
 }
 
 export default function Home({ navigation, route }: HomeProps) {
-  const { username } = route.params || { username: 'User' };
+  const { authUser } = useAuthUser();
+  const { avatar, fname, lname } = { avatar: authUser.avatar, fname: authUser.fname, lname: authUser.lname };
+
 
 
   return (
     <View style={styles.container}>
-      <Text style={styles.welcomeText}>Welcome, {username}!</Text>
+      <Text style={styles.welcomeText}>Welcome, {fname}!</Text>
       
       <View style={styles.cardContainer}>
         <TouchableOpacity style={styles.card}>
@@ -21,12 +23,18 @@ export default function Home({ navigation, route }: HomeProps) {
           <Text style={styles.cardDescription}>Learn new words and phrases</Text>
         </TouchableOpacity>
         
-        <TouchableOpacity style={styles.card}>
+        <TouchableOpacity 
+          style={styles.card} 
+          onPress={() => navigation.navigate('ExamQuiz')}
+        >
           <Text style={styles.cardTitle}>Grammar</Text>
           <Text style={styles.cardDescription}>Practice English grammar rules</Text>
         </TouchableOpacity>
         
-        <TouchableOpacity style={styles.card}>
+        <TouchableOpacity 
+        style={styles.card}
+        onPress={() => navigation.navigate('SetUpSubjectAndType')}
+        >
           <Text style={styles.cardTitle}>Listening</Text>
           <Text style={styles.cardDescription}>Improve your listening skills</Text>
         </TouchableOpacity>
