@@ -6,6 +6,15 @@ from myapp.utils.exam import random_exam, check_score, check_score_speaking
 from myapp.utils.tts import create_single_audio
 from myapp.utils.create_speaking import create_speaking_test
 
+voice_models = {
+    '0': 'af_heart',
+    '1': 'af_bella',
+    '2': 'am_michael',
+    '3': 'am_puck',
+    '4': 'am_fenrir',
+    '5': 'af_sky',
+    '6': 'af_nicole',
+}
 
 main = Blueprint('main', __name__)
 
@@ -75,7 +84,8 @@ def test_tts():
 @token_required
 def get_speaking_test(current_user_id):
     subject = request.args.get('subject')
-    exam_data = create_speaking_test(subject)
+    type_exam = request.args.get('type')
+    exam_data = create_speaking_test(subject=subject, type_exam=type_exam)
     exam_data['audio'] = f'/static/tts/{exam_data["audio"]["filename"]}'
     # Lưu tạm exam_data.answers để chờ gọi API submit-exam
     tmp_session[str(current_user_id)+"_speaking_exam"] = {
@@ -96,17 +106,24 @@ def submit_speaking_test(current_user_id):
     if 'answers' not in request.json:
         return jsonify({'message': 'Answers is missing in JSON body'}), 400
     answers_user = request.json.get('answers')
-    exam_session = tmp_session.get(str(current_user_id)+"_speaking_exam")
+    exam_session = tmp_session[str(current_user_id)+"_speaking_exam"]
     if not exam_session:
         return jsonify({'message': 'Exam not found'}), 404
-    answers_session = exam_session.get('data').get('questions').get('')
     
+    answers_session = [i["correct_answer"] for i in exam_session.get('data').get('questions')]
+    print(answers_session)
+    print(answers_user)
     if not answers_session:
         return jsonify({'message': 'Exam not found'}), 404
-    score = check_score_speaking(answers_user, answers_session)
+    score, u_exam  = check_score_speaking(answers_user, answers_session)
     if score == -1:
         return jsonify({'message': 'Answers is not valid'}), 400
-    return jsonify({'score': score, 'message': 'Exam submitted successfully', 'exam': exam_session.get("data"), 'u_answers': answers_user}), 200
+    return jsonify({
+        'score': score, 
+        'message': 'Exam submitted successfully', 
+        'exam': exam_session.get("data"),
+        'result': u_exam,
+        'text': exam_session.get('data').get('text')}), 200
 
 # 404
 @main.app_errorhandler(404)

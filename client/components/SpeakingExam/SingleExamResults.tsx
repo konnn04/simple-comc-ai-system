@@ -1,24 +1,31 @@
 import React, { useState } from 'react';
 import { StyleSheet, Text, View, TouchableOpacity, ScrollView } from 'react-native';
 
+interface ResultItem {
+  correct: boolean;
+  correct_answer: string | boolean | number;
+  user_answer: string | boolean | number;
+}
+
 interface SingleExamResultsProps {
   navigation: any;
   route: any;
 }
 
 export default function SingleExamResults({ navigation, route }: SingleExamResultsProps) {
-  const { score, exam, userAnswers, transcript, timeElapsed } = route.params;
+  const { score, results, transcript, questions, subject, timeElapsed } = route.params;
   const [showTranscript, setShowTranscript] = useState(false);
-  
+  const [showDetails, setShowDetails] = useState(false); 
+
   const getScoreColor = () => {
-    const percentage = (score / exam.questions.length) * 100;
+    const percentage = (score / questions.length) * 100;
     if (percentage >= 80) return '#4CAF50'; // Green for high scores
     if (percentage >= 60) return '#FF9800'; // Orange for medium scores
     return '#F44336'; // Red for low scores
   };
 
   const getResultMessage = () => {
-    const percentage = (score / exam.questions.length) * 100;
+    const percentage = (score / questions.length) * 100;
     if (percentage >= 90) return 'Excellent job!';
     if (percentage >= 80) return 'Great work!';
     if (percentage >= 70) return 'Good job!';
@@ -33,35 +40,72 @@ export default function SingleExamResults({ navigation, route }: SingleExamResul
     return `${mins} min ${secs} sec`;
   };
   
-  const getOptionStyle = (questionIndex: number, optionIndex: number) => {
-    const question = exam.questions[questionIndex];
-    const userAnswer = userAnswers[questionIndex];
-    let correctAnswer;
-    
-    if (question.type === 'multiple_choice') {
-      // Convert letter answer ('A', 'B', 'C', 'D') to index (0, 1, 2, 3)
-      correctAnswer = question.correct_answer.charCodeAt(0) - 65;
-      
-      // User selected this option and it's correct
-      if (userAnswer === optionIndex && correctAnswer === optionIndex) {
-        return [styles.optionReview, styles.correctOption];
-      }
-      
-      // User selected this option but it's wrong
-      if (userAnswer === optionIndex && correctAnswer !== optionIndex) {
-        return [styles.optionReview, styles.incorrectOption];
-      }
-      
-      // User didn't select this option but it's the correct one
-      if (userAnswer !== optionIndex && correctAnswer === optionIndex) {
-        return [styles.optionReview, styles.correctOptionNotSelected];
-      }
-      
-      // User didn't select this option and it's not correct
-      return [styles.optionReview];
+  const renderAnswerContent = (question: any, result: ResultItem, index: number) => {
+    switch (question.type) {
+      case 'multiple_choice':
+        const options = question.options || [];
+        return (
+          <View>
+            {options.map((option: string, optIdx: number) => {
+              // Convert letter answers to indices (A -> 0, B -> 1, etc.)
+              const correctIdx = question.correct_answer.charCodeAt(0) - 65;
+              const userIdx = typeof result.user_answer === 'string' ? 
+                result.user_answer.charCodeAt(0) - 65 : result.user_answer;
+              
+              // Determine the style based on whether this option was selected and correct
+              const isCorrectOption = optIdx === correctIdx;
+              const isUserSelected = optIdx === userIdx;
+              
+              let optionStyle = styles.optionReview;
+              if (isUserSelected && isCorrectOption) {
+                optionStyle = {...optionStyle, ...styles.correctOption};
+              } else if (isUserSelected && !isCorrectOption) {
+                optionStyle = {...optionStyle, ...styles.incorrectOption};
+              } else if (!isUserSelected && isCorrectOption) {
+                optionStyle = {...optionStyle, ...styles.correctOptionNotSelected};
+              }
+              
+              return (
+                <View key={optIdx} style={[optionStyle]}>
+                  <Text style={styles.optionLetter}>{String.fromCharCode(65 + optIdx)}</Text>
+                  <Text style={styles.optionText}>{option}</Text>
+                  {isCorrectOption && <Text style={styles.correctMark}>✓</Text>}
+                  {isUserSelected && !isCorrectOption && <Text style={styles.incorrectMark}>✗</Text>}
+                </View>
+              );
+            })}
+          </View>
+        );
+        
+      case 'fill_in_the_blank':
+        return (
+          <View style={styles.fillBlankResultContainer}>
+            <Text style={styles.resultLabel}>Your answer: </Text>
+            <Text style={result.correct ? styles.correctAnswer : styles.incorrectAnswer}>
+              {result.user_answer?.toString() || 'Not answered'}
+            </Text>
+            <Text style={styles.resultLabel}>Correct answer: </Text>
+            <Text style={styles.correctAnswer}>{result.correct_answer?.toString()}</Text>
+          </View>
+        );
+        
+      case 'true_or_false':
+        return (
+          <View style={styles.trueFalseResultContainer}>
+            <Text style={styles.resultLabel}>Your answer: </Text>
+            <Text style={result.correct ? styles.correctAnswer : styles.incorrectAnswer}>
+              {result.user_answer === true ? 'True' : result.user_answer === false ? 'False' : 'Not answered'}
+            </Text>
+            <Text style={styles.resultLabel}>Correct answer: </Text>
+            <Text style={styles.correctAnswer}>
+              {result.correct_answer === true ? 'True' : 'False'}
+            </Text>
+          </View>
+        );
+        
+      default:
+        return <Text>Unknown question type</Text>;
     }
-    
-    return [styles.optionReview];
   };
 
   return (
@@ -71,10 +115,10 @@ export default function SingleExamResults({ navigation, route }: SingleExamResul
       <View style={styles.scoreContainer}>
         <Text style={styles.scoreLabel}>Your Score</Text>
         <Text style={[styles.scoreValue, { color: getScoreColor() }]}>
-          {score} / {exam.questions.length}
+          {score} / {questions.length}
         </Text>
         <Text style={styles.scorePercentage}>
-          {Math.round((score / exam.questions.length) * 100)}%
+          {Math.round((score / questions.length) * 100)}%
         </Text>
         <Text style={styles.resultMessage}>{getResultMessage()}</Text>
         <Text style={styles.timeInfo}>Time taken: {formatTime(timeElapsed)}</Text>
@@ -98,63 +142,49 @@ export default function SingleExamResults({ navigation, route }: SingleExamResul
         </View>
       )}
       
-      <Text style={styles.reviewTitle}>Review Your Answers</Text>
-      
-      <ScrollView style={styles.reviewContainer}>
-        {exam.questions.map((question: any, questionIndex: number) => {
-          const userAnswer = userAnswers[questionIndex];
+      <TouchableOpacity 
+        style={[
+          styles.toggleButton, 
+          showDetails ? styles.hideResultsButton : styles.showResultsButton
+        ]}
+        onPress={() => setShowDetails(!showDetails)}
+      >
+        <Text style={styles.toggleButtonText}>
+          {showDetails ? 'Hide Detailed Results' : 'Show Detailed Results'}
+        </Text>
+      </TouchableOpacity>
+
+      {showDetails && (
+        <View style={styles.reviewOuterContainer}>
+          <Text style={styles.reviewTitle}>Review Your Answers</Text>
           
-          return (
-            <View key={questionIndex} style={styles.questionReview}>
-              <Text style={styles.questionIndexText}>Question {questionIndex + 1}</Text>
-              <Text style={styles.questionText}>{question.question}</Text>
+          <ScrollView style={styles.detailedResultsContainer}>
+            {questions.map((question: any, index: number) => {
+              const result = results[index];
               
-              {question.type === 'multiple_choice' && question.options && question.options.map((option: string, optionIndex: number) => (
-                <View
-                  key={optionIndex}
-                  style={getOptionStyle(questionIndex, optionIndex)}
-                >
-                  <Text style={styles.optionLetter}>{String.fromCharCode(65 + optionIndex)}</Text>
-                  <Text style={styles.optionText}>{option}</Text>
-                  {optionIndex === (question.correct_answer.charCodeAt(0) - 65) && (
-                    <Text style={styles.correctMark}>✓</Text>
-                  )}
-                  {optionIndex === userAnswer && userAnswer !== (question.correct_answer.charCodeAt(0) - 65) && (
-                    <Text style={styles.incorrectMark}>✗</Text>
-                  )}
+              return (
+                <View key={index} style={styles.questionReview}>
+                  <Text style={styles.questionIndexText}>Question {index + 1}</Text>
+                  <Text style={styles.questionText}>{question.question}</Text>
+                  
+                  {renderAnswerContent(question, result, index)}
+                  
+                  <View style={styles.explanationContainer}>
+                    <Text style={styles.explanationTitle}>Explanation:</Text>
+                    <Text style={styles.explanationText}>{question.explanation || 'No explanation available'}</Text>
+                  </View>
+                  
+                  <View style={styles.resultIndicator}>
+                    <Text style={result.correct ? styles.correctIndicator : styles.incorrectIndicator}>
+                      {result.correct ? 'Correct ✓' : 'Incorrect ✗'}
+                    </Text>
+                  </View>
                 </View>
-              ))}
-              
-              {question.type === 'true_or_false' && (
-                <View style={styles.trueFalseResultContainer}>
-                  <Text style={styles.resultLabel}>Your answer: </Text>
-                  <Text style={userAnswer === question.correct_answer ? styles.correctAnswer : styles.incorrectAnswer}>
-                    {userAnswer === true ? 'True' : userAnswer === false ? 'False' : 'Not answered'}
-                  </Text>
-                  <Text style={styles.resultLabel}>Correct answer: </Text>
-                  <Text style={styles.correctAnswer}>{question.correct_answer === true ? 'True' : 'False'}</Text>
-                </View>
-              )}
-              
-              {question.type === 'fill_in_the_blank' && (
-                <View style={styles.fillBlankResultContainer}>
-                  <Text style={styles.resultLabel}>Your answer: </Text>
-                  <Text style={userAnswer === question.correct_answer ? styles.correctAnswer : styles.incorrectAnswer}>
-                    {userAnswer || 'Not answered'}
-                  </Text>
-                  <Text style={styles.resultLabel}>Correct answer: </Text>
-                  <Text style={styles.correctAnswer}>{question.correct_answer}</Text>
-                </View>
-              )}
-              
-              <View style={styles.explanationContainer}>
-                <Text style={styles.explanationTitle}>Explanation:</Text>
-                <Text style={styles.explanationText}>{question.explanation || 'No explanation available'}</Text>
-              </View>
-            </View>
-          );
-        })}
-      </ScrollView>
+              );
+            })}
+          </ScrollView>
+        </View>
+      )}
       
       <TouchableOpacity 
         style={styles.homeButton}
@@ -168,7 +198,7 @@ export default function SingleExamResults({ navigation, route }: SingleExamResul
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    flex: 0,
     padding: 20,
     backgroundColor: '#f5f5f5',
   },
@@ -256,7 +286,9 @@ const styles = StyleSheet.create({
     marginBottom: 15,
   },
   reviewContainer: {
-    flex: 1,
+    flex: 0,
+    flexGrow: 0,
+    flexShrink: 0,
     marginBottom: 15,
   },
   questionReview: {
@@ -269,6 +301,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.05,
     shadowRadius: 3,
     elevation: 1,
+    position: 'relative',
   },
   questionIndexText: {
     fontSize: 14,
@@ -365,6 +398,22 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#555',
   },
+  resultIndicator: {
+    position: 'absolute',
+    top: 10,
+    right: 10,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 15,
+  },
+  correctIndicator: {
+    color: '#4CAF50',
+    fontWeight: 'bold',
+  },
+  incorrectIndicator: {
+    color: '#F44336',
+    fontWeight: 'bold',
+  },
   homeButton: {
     backgroundColor: '#2196F3',
     paddingVertical: 15,
@@ -376,5 +425,17 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontWeight: 'bold',
     fontSize: 16,
+  },
+  showResultsButton: {
+    backgroundColor: '#2196F3',
+  },
+  hideResultsButton: {
+    backgroundColor: '#607D8B',
+  },
+  reviewOuterContainer: {
+    marginBottom: 20,
+  },
+  detailedResultsContainer: {
+    flex: 0,
   },
 });
