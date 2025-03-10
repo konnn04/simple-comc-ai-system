@@ -37,7 +37,7 @@ def check_score(answers, answers_session):
             score += 1
     return score
 
-def check_score_speaking(answers, true_answers):
+def check_score_listening(answers, true_answers):
     if len(answers) != len(true_answers):
         return -1
     score = 0

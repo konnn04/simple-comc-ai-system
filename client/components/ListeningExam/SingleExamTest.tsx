@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, TextInput, ScrollView, Alert, BackHandler, ActivityIndicator } from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity, TextInput, ScrollView, Alert, BackHandler, ActivityIndicator, AppState } from 'react-native';
 import { authenticatedFetch } from '../../utils/api';
 import { HOST } from '../../constants/server';
+import { Audio, AVPlaybackStatus } from 'expo-av';
 
 interface Question {
   question: string;
@@ -11,7 +12,7 @@ interface Question {
   explanation: string;
 }
 
-interface SpeakingTest {
+interface ListeningTest {
   audio: {
     filename: string;
     full_path: string;
@@ -29,7 +30,7 @@ let playCount_ = 0;
 
 export default function SingleExamTest({ navigation, route }: SingleExamTestProps) {
   const { subject, examType } = route.params;
-  const [test, setTest] = useState<SpeakingTest | null>(null);
+  const [test, setTest] = useState<ListeningTest | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
@@ -37,7 +38,8 @@ export default function SingleExamTest({ navigation, route }: SingleExamTestProp
   const [fillInAnswers, setFillInAnswers] = useState<{ [key: number]: string }>({});
   const [timeElapsed, setTimeElapsed] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const audioRef = useRef<HTMLAudioElement>(null);
+  const [sound, setSound] = useState<Audio.Sound | null>(null);
+  const [isAudioLoaded, setIsAudioLoaded] = useState(false);
 
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
@@ -50,13 +52,13 @@ export default function SingleExamTest({ navigation, route }: SingleExamTestProp
       try {
         setLoading(true);
         const response = await authenticatedFetch(
-          `api/get-speaking-test?subject=${encodeURIComponent(subject)}&type=${examType}`,
+          `api/get-ai-listening-test?subject=${encodeURIComponent(subject)}&type=${examType}`,
           { method: 'GET' },
           navigation
         );
 
         if (!response.ok) {
-          throw new Error('Failed to fetch speaking test');
+          throw new Error('Failed to fetch listening test');
         }
 
         const data = await response.json();
@@ -71,8 +73,8 @@ export default function SingleExamTest({ navigation, route }: SingleExamTestProp
         setAnswers(initialAnswers);
 
       } catch (error) {
-        console.error('Error fetching speaking test:', error);
-        setError('Failed to load speaking test. Please try again later.');
+        console.error('Error fetching listening test:', error);
+        setError('Failed to load listening test. Please try again later.');
       } finally {
         setLoading(false);
       }
@@ -83,34 +85,56 @@ export default function SingleExamTest({ navigation, route }: SingleExamTestProp
 
   // Setup audio event listeners
   useEffect(() => {
-    if (!audioRef.current || loading) return;
+    // Load audio when component mounts
+    if (!test || loading) return;
 
-    const audioElement = audioRef.current;
+    const loadAudio = async () => {
+      try {
+        // Unload any existing audio
+        if (sound) {
+          await sound.unloadAsync();
+        }
 
-    const handleLoadedMetadata = () => {
-      setDuration(audioElement.duration);
+        // Set up audio playback
+        const { sound: newSound } = await Audio.Sound.createAsync(
+          { uri: `${HOST}${test.audio}` },
+          { shouldPlay: false },
+          onPlaybackStatusUpdate
+        );
+
+        setSound(newSound);
+        setIsAudioLoaded(true);
+        console.log('Audio loaded successfully');
+      } catch (error) {
+        console.error('Error loading audio:', error);
+        Alert.alert('Error', 'Failed to load audio file');
+      }
     };
 
-    const handleTimeUpdate = () => {
-      setCurrentTime(audioElement.currentTime);
-    };
+    loadAudio();
 
-    const handleEnded = () => {
-      setIsPlaying(false);
-      setCurrentTime(0);
-      console.log('Audio ended');
-    };
-
-    audioElement.addEventListener('loadedmetadata', handleLoadedMetadata);
-    audioElement.addEventListener('timeupdate', handleTimeUpdate);
-    audioElement.addEventListener('ended', handleEnded);
-
+    // Cleanup function
     return () => {
-      audioElement.removeEventListener('loadedmetadata', handleLoadedMetadata);
-      audioElement.removeEventListener('timeupdate', handleTimeUpdate);
-      audioElement.removeEventListener('ended', handleEnded);
+      if (sound) {
+        sound.unloadAsync();
+      }
     };
-  }, [loading, audioRef.current]);
+  }, [test]);
+
+  const onPlaybackStatusUpdate = (status: AVPlaybackStatus) => {
+    if (status.isLoaded) {
+      setCurrentTime(status.positionMillis / 1000);
+      setDuration((status.durationMillis || 0) / 1000);
+      setIsPlaying(status.isPlaying);
+
+      // Handle playback completion
+      if (status.didJustFinish) {
+        setIsPlaying(false);
+        setCurrentTime(0);
+        console.log('Audio ended');
+      }
+    }
+  };
 
   // Time tracking
   useEffect(() => {
@@ -144,65 +168,79 @@ export default function SingleExamTest({ navigation, route }: SingleExamTestProp
 
   // Prevent tab switching
   useEffect(() => {
-    const beforeUnloadListener = (event: BeforeUnloadEvent) => {
-      event.preventDefault();
-      event.returnValue = 'You have unsaved changes. Are you sure you want to leave?';
-      return event.returnValue;
-    };
+    const subscription = AppState.addEventListener('change', nextAppState => {
+      if (nextAppState === 'inactive' || nextAppState === 'background') {
+        Alert.alert(
+          'Exit Exam',
+          'Are you sure you want to exit? Your progress will be lost.',
+          [
+            { text: 'Cancel', onPress: () => null, style: 'cancel' },
+            { text: 'Exit', onPress: () => navigation.goBack() },
+          ]
+        );
+      }
+    });
 
-    window.addEventListener('beforeunload', beforeUnloadListener);
-    return () => {
-      window.removeEventListener('beforeunload', beforeUnloadListener);
-    };
+    return () => subscription.remove();
   }, []);
 
-  const handlePlayAudio = () => {
-    if (!audioRef.current) return;
+  const handlePlayAudio = async () => {
+    if (!sound || !isAudioLoaded) return;
 
-    if (isPlaying) {
-      // Pause the audio
-      audioRef.current.pause();
-      setIsPlaying(false);
-    } else {
-      // Check if we're starting from the beginning (increment play count)
-      if (currentTime === 0 && playCount >= 3) {
+    try {
+      if (isPlaying) {
+        // Pause the audio
+        await sound.pauseAsync();
+        setIsPlaying(false);
+      } else {
+        // Check if we're starting from the beginning (increment play count)
+        if (currentTime === 0 && playCount >= 3) {
+          Alert.alert('Limit Reached', 'You can only play the audio 3 times');
+          return;
+        }
+
+        // If starting from beginning, increment play count
+        if (currentTime === 0) {
+          setPlayCount(prev => {
+            playCount_ = prev + 1;
+            return prev + 1;
+          });
+        }
+
+        // Play the audio
+        await sound.playAsync();
+        setIsPlaying(true);
+      }
+    } catch (error) {
+      console.error('Error playing audio:', error);
+      Alert.alert('Error', 'Failed to play audio');
+    }
+  };
+
+  const handleRestartAudio = async () => {
+    if (!sound || !isAudioLoaded) return;
+
+    try {
+      if (playCount >= 3) {
         Alert.alert('Limit Reached', 'You can only play the audio 3 times');
         return;
       }
 
-      // If starting from beginning, increment play count
-      if (currentTime === 0) {
-        setPlayCount(prev => prev + 1);
-        playCount_ = playCount
-      }
+      // Reset current time to beginning
+      await sound.setPositionAsync(0);
+      setCurrentTime(0);
 
-      // Play the audio
-      audioRef.current.play();
+      // Increment play count and start playing
+      setPlayCount(prev => {
+        playCount_ = prev + 1;
+        return prev + 1;
+      });
+
+      await sound.playAsync();
       setIsPlaying(true);
-    }
-  };
-
-  const handleRestartAudio = () => {
-    if (!audioRef.current) return;
-
-    if (playCount >= 3) {
-      Alert.alert('Limit Reached', 'You can only play the audio 3 times');
-      return;
-    }
-
-    // Reset current time to beginning
-    audioRef.current.currentTime = 0;
-    setCurrentTime(0);
-
-    // If it was playing, continue playing from the beginning
-    if (isPlaying) {
-      audioRef.current.play();
-    } else {
-      // If it wasn't playing, increment play count and start playing
-      setPlayCount(prev => prev + 1);
-      playCount_ = playCount
-      audioRef.current.play();
-      setIsPlaying(true);
+    } catch (error) {
+      console.error('Error restarting audio:', error);
+      Alert.alert('Error', 'Failed to restart audio');
     }
   };
 
@@ -274,7 +312,7 @@ export default function SingleExamTest({ navigation, route }: SingleExamTestProp
       setIsSubmitting(true);
 
       const response = await authenticatedFetch(
-        'api/submit-speaking-test',
+        'api/submit-listening-test',
         {
           method: 'POST',
           body: JSON.stringify({
@@ -292,17 +330,38 @@ export default function SingleExamTest({ navigation, route }: SingleExamTestProp
       }
 
       const result = await response.json();
-      navigation.navigate('SingleExamResults', {
-        score: result.score,
-        results: result.result,
-        transcript: result.text,
-        questions: test.questions,
-        subject,
-        timeElapsed
+      // navigation.navigate('SingleExamResults', {
+      //   score: result.score,
+      //   results: result.result,
+      //   transcript: result.text,
+      //   questions: test.questions,
+      //   subject,
+      //   timeElapsed
+      // });
+      //Pause audio
+      if (sound) {
+        await sound.pauseAsync();
+      }
+      navigation.reset({
+        index: 0,
+        routes: [
+          { name: 'Main' },
+          { 
+            name: 'SingleExamResults', 
+            params: {
+              score: result.score,
+              results: result.result,
+              transcript: result.text,
+              questions: test.questions,
+              subject,
+              timeElapsed
+            }
+          }
+        ],
       });
 
     } catch (error) {
-      console.error('Error submitting speaking exam:', error);
+      console.error('Error submitting listening exam:', error);
       Alert.alert('Error', 'Failed to submit your exam. Please try again.');
     } finally {
       setIsSubmitting(false);
@@ -436,7 +495,7 @@ export default function SingleExamTest({ navigation, route }: SingleExamTestProp
     return (
       <View style={[styles.container, styles.centered]}>
         <ActivityIndicator size="large" color="#2196F3" />
-        <Text style={styles.loadingText}>Loading speaking test...</Text>
+        <Text style={styles.loadingText}>Loading listening test...</Text>
       </View>
     );
   }
@@ -477,12 +536,6 @@ export default function SingleExamTest({ navigation, route }: SingleExamTestProp
       </View>
 
       <View style={styles.audioSection}>
-        <audio
-          ref={audioRef}
-          src={`${HOST}${test.audio}` || ''}
-          controls={false}
-          onEnded={() => console.log('Audio ended')}
-        />
         <View style={styles.audioPlayerContainer}>
           {/* Play/Pause and Restart Buttons */}
           <View style={styles.audioControlsRow}>
@@ -528,7 +581,6 @@ export default function SingleExamTest({ navigation, route }: SingleExamTestProp
           </View>
         </View>
       </View>
-
       <View style={styles.progressInfo}>
         <Text style={styles.progressText}>
           Question {currentQuestionIndex + 1} of {test.questions.length}

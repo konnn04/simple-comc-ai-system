@@ -16,35 +16,44 @@ export default function Home({ navigation, route }: HomeProps) {
   return (
     <View style={styles.container}>
       <Text style={styles.welcomeText}>Welcome, {fname}!</Text>
-      
+
       <View style={styles.cardContainer}>
         <TouchableOpacity style={styles.card}>
           <Text style={styles.cardTitle}>Vocabulary</Text>
           <Text style={styles.cardDescription}>Learn new words and phrases</Text>
         </TouchableOpacity>
-        
-        <TouchableOpacity 
-          style={styles.card} 
+
+        <TouchableOpacity
+          style={styles.card}
           onPress={() => navigation.navigate('ExamQuiz')}
         >
           <Text style={styles.cardTitle}>Grammar</Text>
           <Text style={styles.cardDescription}>Practice English grammar rules</Text>
         </TouchableOpacity>
-        
-        <TouchableOpacity 
-        style={styles.card}
-        onPress={() => navigation.navigate('SetUpSubjectAndType')}
+
+        <TouchableOpacity
+          style={styles.card}
+          onPress={() => navigation.navigate('SetUpSubjectAndType')}
         >
           <Text style={styles.cardTitle}>Listening</Text>
           <Text style={styles.cardDescription}>Improve your listening skills</Text>
         </TouchableOpacity>
-        
-        <TouchableOpacity style={styles.card}>
+
+        <TouchableOpacity 
+          style={styles.card}
+          onPress={() => navigation.navigate('SetUpSpeakingExercise')}>
           <Text style={styles.cardTitle}>Speaking</Text>
           <Text style={styles.cardDescription}>Practice pronunciation</Text>
         </TouchableOpacity>
+
+        <TouchableOpacity
+          style={styles.card}
+          onPress={() => navigation.navigate('SpeechToTextTest')}>
+          <Text style={styles.cardTitle}>Test Speaking</Text>
+          <Text style={styles.cardDescription}>Test API</Text>
+        </TouchableOpacity>
       </View>
-      
+
 
     </View>
   );

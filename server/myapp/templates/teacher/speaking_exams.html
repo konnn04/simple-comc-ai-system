@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+
+{% block title %}Quản lý bài thi nói{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>Danh sách bài thi nói</h1>
+        <div>
+            <a href="{{ url_for('teacher.create_speaking_exam') }}" class="btn btn-primary me-2">
+                <i class="bi bi-plus-circle"></i> Tạo thủ công
+            </a>
+            <a href="{{ url_for('teacher.create_ai_speaking_exam_route') }}" class="btn btn-success">
+                <i class="bi bi-robot"></i> Tạo bằng AI
+            </a>
+        </div>
+    </div>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+    
+    <div class="card">
+        <div class="card-body">
+            <table class="table table-striped table-hover">
+                <thead>
+                    <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">Khóa học</th>
+                        <th scope="col">Audio</th>
+                        <th scope="col">Điểm</th>
+                        <th scope="col">Loại</th>
+                        <th scope="col">Trạng thái</th>
+                        <th scope="col">Ngày tạo</th>
+                        <th scope="col" width="150">Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if speaking_exams %}
+                        {% for speaking_exam in speaking_exams %}
+                            <tr>
+                                <th scope="row">{{ loop.index }}</th>
+                                <td>{{ speaking_exam.course.name if speaking_exam.course else "N/A" }}</td>
+                                <td>
+                                    {% if speaking_exam.audio_path %}
+                                        <audio controls style="max-width: 200px">
+                                            <source src="{{ speaking_exam.audio_path }}" type="audio/mpeg">
+                                            Your browser does not support the audio element.
+                                        </audio>
+                                    {% else %}
+                                        <span class="text-muted">Không có audio</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ speaking_exam.score }}</td>
+                                <td>
+                                    {% if speaking_exam.is_ai %}
+                                        <span class="badge bg-info">AI</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">Thủ công</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if speaking_exam.is_public %}
+                                        <span class="badge bg-success">Công khai</span>
+                                    {% else %}
+                                        <span class="badge bg-warning text-dark">Riêng tư</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ speaking_exam.created_at.strftime('%d/%m/%Y') if speaking_exam.created_at else "N/A" }}</td>
+                                <td>
+                                    <div class="btn-group" role="group">
+                                        <a href="{{ url_for('teacher.edit_speaking_exam', speaking_exam_id=speaking_exam.id) }}"
+                                            class="btn btn-sm btn-primary">
+                                            <i class="bi bi-pencil"></i> Sửa
+                                        </a>
+                                        <button type="button" class="btn btn-sm btn-danger" data-bs-toggle="modal" 
+                                            data-bs-target="#deleteModal{{ speaking_exam.id }}">
+                                            <i class="bi bi-trash"></i> Xóa
+                                        </button>
+                                    </div>
+                                    
+                                    <!-- Modal xác nhận xóa -->
+                                    <div class="modal fade" id="deleteModal{{ speaking_exam.id }}" tabindex="-1" aria-hidden="true">
+                                        <div class="modal-dialog">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title">Xác nhận xóa</h5>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <p>Bạn có chắc chắn muốn xóa bài thi này không?</p>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                                                    <form action="{{ url_for('teacher.delete_speaking_exam', speaking_exam_id=speaking_exam.id) }}" method="post">
+                                                        <button type="submit" class="btn btn-danger">Xóa</button>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="8" class="text-center">Không có bài thi nào</td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

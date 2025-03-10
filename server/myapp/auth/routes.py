@@ -7,6 +7,8 @@ import datetime
 from myapp.config import Config
 from flask_login import LoginManager, UserMixin, login_user, logout_user, current_user, login_required
 from myapp.utils.index import token_required 
+from myapp.models import UserRole
+
 
 auth = Blueprint('auth', __name__)
 
@@ -57,6 +59,16 @@ def auth_login():
         return jsonify({'token': token, 'fname': user.fname, 'lname': user.lname, 'avatar': user.avatar}), 200
     return jsonify({'message': 'Username or password is incorrect'}), 401
 
+# Check token
+@token_required
+@auth.route('/auth/verify', methods=['GET'], description="Kiểm tra token")
+def auth_test():
+    return jsonify({'message': 'Token is valid'}), 200
+
+
+
+# #############################################
+
 @auth.route('/login', methods=['GET', 'POST'], description="Đăng nhập với tài khoản nhân viên")
 def login():
     if request.method == 'POST':
@@ -69,17 +81,7 @@ def login():
             return redirect(url_for('auth.forwards_role'))
         else:
             flash('Login Unsuccessful. Please check username and password', 'danger')
-    return render_template('staff/login.html')# 
-
-# Check token
-@token_required
-@auth.route('/auth/verify', methods=['GET'], description="Kiểm tra token")
-def auth_test():
-    return jsonify({'message': 'Token is valid'}), 200
-
-
-
-# #############################################
+    return render_template('staff/login.html')
 
 @auth.route('/logout', description="Đăng xuất")
 def logout():
@@ -89,8 +91,11 @@ def logout():
 @auth.route('/forwards-role', methods=['GET', 'POST'], description="Chuyển hướng theo role")
 def forwards_role():
     if current_user.is_authenticated:
-        if current_user.role == 'admin':
+        if current_user.role == UserRole.ADMIN:
             return redirect(url_for('admin.index'))
+        
+        if current_user.role == UserRole.TEACHER:
+            return redirect(url_for('teacher.home'))
 
         logout_user()
         return redirect(url_for('auth.login'))

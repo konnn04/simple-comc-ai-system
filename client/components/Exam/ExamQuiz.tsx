@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, Alert, BackHandler, ActivityIndicator, ScrollView } from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity, Alert, BackHandler, ActivityIndicator, ScrollView, AppState } from 'react-native';
 import { useAuthUser } from '../../utils/useAuthUser';
 import { HOST } from '../../constants/server';
 import { authenticatedFetch } from '../../utils/api';
@@ -40,7 +40,7 @@ export default function ExamQuiz({ navigation }: any) {
       try {
         setLoading(true);
         const response = await authenticatedFetch(
-          'api/get-exam',
+          'api/get-ai-exam',
           { method: 'GET' },
           navigation
         );
@@ -118,17 +118,20 @@ export default function ExamQuiz({ navigation }: any) {
 
   // Prevent tab switching
   useEffect(() => {
-    const beforeUnloadListener = (event: BeforeUnloadEvent) => {
-      event.preventDefault();
-      event.returnValue = 'You have unsaved changes. Are you sure you want to leave?';
-      return event.returnValue;
-    };
-
-    window.addEventListener('beforeunload', beforeUnloadListener);
-
-    return () => {
-      window.removeEventListener('beforeunload', beforeUnloadListener);
-    };
+      const subscription = AppState.addEventListener('change', nextAppState => {
+        if (nextAppState === 'inactive' || nextAppState === 'background') {
+          Alert.alert(
+            'Exit Exam',
+            'Are you sure you want to exit? Your progress will be lost.',
+            [
+              { text: 'Cancel', onPress: () => null, style: 'cancel' },
+              { text: 'Exit', onPress: () => navigation.goBack() },
+            ]
+          );
+        }
+      });
+      
+      return () => subscription.remove();
   }, []);
 
   const handleSelectAnswer = (answerIndex: number) => {

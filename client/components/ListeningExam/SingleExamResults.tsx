@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, ScrollView } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { StyleSheet, Text, View, TouchableOpacity, ScrollView, BackHandler } from 'react-native';
 
 interface ResultItem {
   correct: boolean;
@@ -15,7 +15,21 @@ interface SingleExamResultsProps {
 export default function SingleExamResults({ navigation, route }: SingleExamResultsProps) {
   const { score, results, transcript, questions, subject, timeElapsed } = route.params;
   const [showTranscript, setShowTranscript] = useState(false);
-  const [showDetails, setShowDetails] = useState(false); 
+  const [showDetails, setShowDetails] = useState(false);
+
+  useEffect(() => {
+    const backAction = () => {
+      // Reset navigation to Main instead of going back
+      navigation.reset({
+        index: 0,
+        routes: [{ name: 'Main' }],
+      });
+      return true; // Prevents default back action
+    };
+  
+    const backHandler = BackHandler.addEventListener('hardwareBackPress', backAction);
+    return () => backHandler.remove();
+  }, []);
 
   const getScoreColor = () => {
     const percentage = (score / questions.length) * 100;
@@ -33,13 +47,13 @@ export default function SingleExamResults({ navigation, route }: SingleExamResul
     if (percentage >= 50) return 'You passed!';
     return 'Keep practicing!';
   };
-  
+
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
     return `${mins} min ${secs} sec`;
   };
-  
+
   const renderAnswerContent = (question: any, result: ResultItem, index: number) => {
     switch (question.type) {
       case 'multiple_choice':
@@ -49,22 +63,22 @@ export default function SingleExamResults({ navigation, route }: SingleExamResul
             {options.map((option: string, optIdx: number) => {
               // Convert letter answers to indices (A -> 0, B -> 1, etc.)
               const correctIdx = question.correct_answer.charCodeAt(0) - 65;
-              const userIdx = typeof result.user_answer === 'string' ? 
+              const userIdx = typeof result.user_answer === 'string' ?
                 result.user_answer.charCodeAt(0) - 65 : result.user_answer;
-              
+
               // Determine the style based on whether this option was selected and correct
               const isCorrectOption = optIdx === correctIdx;
               const isUserSelected = optIdx === userIdx;
-              
+
               let optionStyle = styles.optionReview;
               if (isUserSelected && isCorrectOption) {
-                optionStyle = {...optionStyle, ...styles.correctOption};
+                optionStyle = { ...optionStyle, ...styles.correctOption };
               } else if (isUserSelected && !isCorrectOption) {
-                optionStyle = {...optionStyle, ...styles.incorrectOption};
+                optionStyle = { ...optionStyle, ...styles.incorrectOption };
               } else if (!isUserSelected && isCorrectOption) {
-                optionStyle = {...optionStyle, ...styles.correctOptionNotSelected};
+                optionStyle = { ...optionStyle, ...styles.correctOptionNotSelected };
               }
-              
+
               return (
                 <View key={optIdx} style={[optionStyle]}>
                   <Text style={styles.optionLetter}>{String.fromCharCode(65 + optIdx)}</Text>
@@ -76,7 +90,7 @@ export default function SingleExamResults({ navigation, route }: SingleExamResul
             })}
           </View>
         );
-        
+
       case 'fill_in_the_blank':
         return (
           <View style={styles.fillBlankResultContainer}>
@@ -88,7 +102,7 @@ export default function SingleExamResults({ navigation, route }: SingleExamResul
             <Text style={styles.correctAnswer}>{result.correct_answer?.toString()}</Text>
           </View>
         );
-        
+
       case 'true_or_false':
         return (
           <View style={styles.trueFalseResultContainer}>
@@ -102,7 +116,7 @@ export default function SingleExamResults({ navigation, route }: SingleExamResul
             </Text>
           </View>
         );
-        
+
       default:
         return <Text>Unknown question type</Text>;
     }
@@ -110,95 +124,103 @@ export default function SingleExamResults({ navigation, route }: SingleExamResul
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Listening Exam Results</Text>
-      
-      <View style={styles.scoreContainer}>
-        <Text style={styles.scoreLabel}>Your Score</Text>
-        <Text style={[styles.scoreValue, { color: getScoreColor() }]}>
-          {score} / {questions.length}
-        </Text>
-        <Text style={styles.scorePercentage}>
-          {Math.round((score / questions.length) * 100)}%
-        </Text>
-        <Text style={styles.resultMessage}>{getResultMessage()}</Text>
-        <Text style={styles.timeInfo}>Time taken: {formatTime(timeElapsed)}</Text>
-      </View>
-      
-      <TouchableOpacity 
-        style={styles.toggleButton}
-        onPress={() => setShowTranscript(!showTranscript)}
-      >
-        <Text style={styles.toggleButtonText}>
-          {showTranscript ? 'Hide Transcript' : 'Show Transcript'}
-        </Text>
-      </TouchableOpacity>
-      
-      {showTranscript && (
-        <View style={styles.transcriptContainer}>
-          <Text style={styles.transcriptTitle}>Audio Transcript</Text>
-          <ScrollView style={styles.transcriptScroll}>
-            <Text style={styles.transcriptText}>{transcript}</Text>
-          </ScrollView>
-        </View>
-      )}
-      
-      <TouchableOpacity 
-        style={[
-          styles.toggleButton, 
-          showDetails ? styles.hideResultsButton : styles.showResultsButton
-        ]}
-        onPress={() => setShowDetails(!showDetails)}
-      >
-        <Text style={styles.toggleButtonText}>
-          {showDetails ? 'Hide Detailed Results' : 'Show Detailed Results'}
-        </Text>
-      </TouchableOpacity>
+      <ScrollView>
+        <Text style={styles.title}>Listening Exam Results</Text>
 
-      {showDetails && (
-        <View style={styles.reviewOuterContainer}>
-          <Text style={styles.reviewTitle}>Review Your Answers</Text>
-          
-          <ScrollView style={styles.detailedResultsContainer}>
-            {questions.map((question: any, index: number) => {
-              const result = results[index];
-              
-              return (
-                <View key={index} style={styles.questionReview}>
-                  <Text style={styles.questionIndexText}>Question {index + 1}</Text>
-                  <Text style={styles.questionText}>{question.question}</Text>
-                  
-                  {renderAnswerContent(question, result, index)}
-                  
-                  <View style={styles.explanationContainer}>
-                    <Text style={styles.explanationTitle}>Explanation:</Text>
-                    <Text style={styles.explanationText}>{question.explanation || 'No explanation available'}</Text>
-                  </View>
-                  
-                  <View style={styles.resultIndicator}>
-                    <Text style={result.correct ? styles.correctIndicator : styles.incorrectIndicator}>
-                      {result.correct ? 'Correct ✓' : 'Incorrect ✗'}
-                    </Text>
-                  </View>
-                </View>
-              );
-            })}
-          </ScrollView>
+        <View style={styles.scoreContainer}>
+          <Text style={styles.scoreLabel}>Your Score</Text>
+          <Text style={[styles.scoreValue, { color: getScoreColor() }]}>
+            {score} / {questions.length}
+          </Text>
+          <Text style={styles.scorePercentage}>
+            {Math.round((score / questions.length) * 100)}%
+          </Text>
+          <Text style={styles.resultMessage}>{getResultMessage()}</Text>
+          <Text style={styles.timeInfo}>Time taken: {formatTime(timeElapsed)}</Text>
         </View>
-      )}
-      
-      <TouchableOpacity 
-        style={styles.homeButton}
-        onPress={() => navigation.navigate('Main')}
-      >
-        <Text style={styles.homeButtonText}>Return to Home</Text>
-      </TouchableOpacity>
+
+        <TouchableOpacity
+          style={styles.toggleButton}
+          onPress={() => setShowTranscript(!showTranscript)}
+        >
+          <Text style={styles.toggleButtonText}>
+            {showTranscript ? 'Hide Transcript' : 'Show Transcript'}
+          </Text>
+        </TouchableOpacity>
+
+        {showTranscript && (
+          <View style={styles.transcriptContainer}>
+            <Text style={styles.transcriptTitle}>Audio Transcript</Text>
+            <ScrollView style={styles.transcriptScroll}>
+              <Text style={styles.transcriptText}>{transcript}</Text>
+            </ScrollView>
+          </View>
+        )}
+
+        <TouchableOpacity
+          style={[
+            styles.toggleButton,
+            showDetails ? styles.hideResultsButton : styles.showResultsButton
+          ]}
+          onPress={() => setShowDetails(!showDetails)}
+        >
+          <Text style={styles.toggleButtonText}>
+            {showDetails ? 'Hide Detailed Results' : 'Show Detailed Results'}
+          </Text>
+        </TouchableOpacity>
+
+        {showDetails && (
+          <View style={styles.reviewOuterContainer}>
+            <Text style={styles.reviewTitle}>Review Your Answers</Text>
+
+            <ScrollView style={styles.detailedResultsContainer}>
+              {questions.map((question: any, index: number) => {
+                const result = results[index];
+
+                return (
+                  <View key={index} style={styles.questionReview}>
+                    <Text style={styles.questionIndexText}>Question {index + 1}</Text>
+                    <Text style={styles.questionText}>{question.question}</Text>
+
+                    {renderAnswerContent(question, result, index)}
+
+                    <View style={styles.explanationContainer}>
+                      <Text style={styles.explanationTitle}>Explanation:</Text>
+                      <Text style={styles.explanationText}>{question.explanation || 'No explanation available'}</Text>
+                    </View>
+
+                    <View style={styles.resultIndicator}>
+                      <Text style={result.correct ? styles.correctIndicator : styles.incorrectIndicator}>
+                        {result.correct ? 'Correct ✓' : 'Incorrect ✗'}
+                      </Text>
+                    </View>
+                  </View>
+                );
+              })}
+            </ScrollView>
+          </View>
+        )}
+
+        <TouchableOpacity
+          style={styles.homeButton}
+          // onPress={() => navigation.navigate('Main')}
+          onPress={() => {
+            navigation.reset({
+              index: 0,
+              routes: [{ name: 'Main' }],
+            });
+          }}
+        >
+          <Text style={styles.homeButtonText}>Return to Home</Text>
+        </TouchableOpacity>
+      </ScrollView>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    flex: 0,
+    flex: 1,
     padding: 20,
     backgroundColor: '#f5f5f5',
   },
@@ -286,9 +308,8 @@ const styles = StyleSheet.create({
     marginBottom: 15,
   },
   reviewContainer: {
-    flex: 0,
-    flexGrow: 0,
-    flexShrink: 0,
+    flex: 1,
+
     marginBottom: 15,
   },
   questionReview: {
