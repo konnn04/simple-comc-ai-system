@@ -50,3 +50,6 @@ export default function MainNavigator({ navigation }: any) {
     </Tab.Navigator>
   );
 }
+
+
+

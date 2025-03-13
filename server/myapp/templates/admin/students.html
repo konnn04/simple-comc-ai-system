@@ -1,0 +1,55 @@
+{% extends 'admin/master.html' %}
+
+{% block body %}
+<div class="container">
+    <h1>Quản lý học sinh</h1>
+    
+    <div class="row mt-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h4>Danh sách học sinh</h4>
+                </div>
+                <div class="card-body">
+                    <table class="table table-striped table-hover">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Tên đăng nhập</th>
+                                <th>Email</th>
+                                <th>Họ tên</th>
+                                <th>Ngày sinh</th>
+                                <th>Trạng thái</th>
+                                <th>Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for student in students %}
+                                <tr>
+                                    <td>{{ loop.index }}</td>
+                                    <td>{{ student.username }}</td>
+                                    <td>{{ student.email }}</td>
+                                    <td>{{ student.fname }} {{ student.lname }}</td>
+                                    <td>{{ student.dob.strftime('%d/%m/%Y') if student.dob else "N/A" }}</td>
+                                    <td>
+                                        {% if student.is_active %}
+                                            <span class="label label-success">Hoạt động</span>
+                                        {% else %}
+                                            <span class="label label-danger">Đã khóa</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <a href="{{ url_for('students.details', student_id=student.id) }}" class="btn btn-info btn-sm">
+                                            <i class="glyphicon glyphicon-eye-open"></i> Chi tiết
+                                        </a>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

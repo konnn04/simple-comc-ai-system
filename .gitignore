@@ -172,3 +172,4 @@ cython_debug/
 .expo
 node_modules/
 server/myapp/tech/models/*
+client/android/

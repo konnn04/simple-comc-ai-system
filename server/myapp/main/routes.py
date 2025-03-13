@@ -8,7 +8,7 @@ from myapp.utils.stt import process_audio_file
 from myapp.utils.create_listening import create_listening_test
 from myapp.utils.tool import upload_image
 from myapp.dao.speaking import save_speaking_exercise
-from myapp.utils.create_speaking import generate_speaking_exercise, evaluate_speaking_recording
+from myapp.utils.create_speaking import create_speaking_test, evaluate_speaking_recording
 import os
 import time
 
@@ -145,7 +145,7 @@ def create_speaking_exercise(current_user_id):
     
     # Generate speaking exercise
     print("Generating speaking exercise")
-    exercise_data = generate_speaking_exercise(subject, difficulty, num_sentences)
+    exercise_data = create_speaking_test(subject, difficulty, num_sentences)
     
     if not exercise_data:
         return jsonify({'error': 'Failed to generate speaking exercise'}), 500

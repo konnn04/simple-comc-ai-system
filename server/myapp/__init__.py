@@ -11,14 +11,14 @@ from myapp.constants.routes import route_store
 from flask_login import LoginManager, UserMixin, login_user, logout_user, current_user, login_required
 from dotenv import load_dotenv
 from myapp.tech.tts import KokoroTTS
-# from myapp.tech.vosk_stt import STT
-from myapp.tech.silero_stt import SileroSTT
+from myapp.tech.vosk_stt import STT
+# from myapp.tech.silero_stt import SileroSTT
 
 import cloudinary
 
 # Initialize TTS
 tts = KokoroTTS()
-stt = SileroSTT()
+stt = STT()
 
 # Load environment variables
 load_dotenv()
@@ -71,7 +71,7 @@ def create_app(config_class=Config):
         return original_blueprint_route(self, rule, **options)
     Blueprint.route = custom_blueprint_route
 
-    from myapp.adm import adm
+    from myapp.adm.routes import adm
     from myapp.main.routes import main
     from myapp.auth.routes import auth
     from myapp.teacher.routes import teacher

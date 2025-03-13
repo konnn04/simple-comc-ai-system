@@ -47,8 +47,7 @@ const EvaluationResult = ({ attempt, attemptNumber }: EvaluationResultProps) => 
     accuracy_score, 
     word_level_analysis, 
     result_text,
-    resutl_text, 
-    expected_text
+    resutl_text
   } = attempt.evaluation;
   
   const displayText = result_text || resutl_text;
@@ -89,35 +88,39 @@ const EvaluationResult = ({ attempt, attemptNumber }: EvaluationResultProps) => 
         </View>
       </View>
       
-      <View style={styles.sentenceComparisonContainer}>
-        <View style={styles.comparisonRow}>
-          <Text style={styles.comparisonLabel}>Expected:</Text>
-          <Text style={styles.expectedText}>{expected_text}</Text>
-        </View>
-        
-        <View style={styles.comparisonRow}>
-          <Text style={styles.comparisonLabel}>You said:</Text>
-          <Text style={styles.recognizedText}>{displayText || "(No speech detected)"}</Text>
-        </View>
+      {/* Only show what the user said */}
+      <View style={styles.speechResult}>
+        <Text style={styles.speechResultText}>{displayText || "(No speech detected)"}</Text>
       </View>
       
-      {/* Compact word analysis in line format */}
+      {/* Redesigned word analysis section */}
       <View style={styles.wordAnalysisContainer}>
         <Text style={styles.wordAnalysisTitle}>Word Analysis:</Text>
         
-        <View style={styles.wordsContainer}>
+        <View style={styles.wordsGrid}>
           {word_level_analysis.map((word, index) => {
             const score = Math.round(word.pronunciation_score);
             const scoreColor = getWordScoreColor(score);
+            const errorPercent = 100 - score;
             
             return (
-              <View key={index} style={styles.wordItem}>
+              <View key={index} style={styles.wordCard}>
                 <Text style={[styles.wordText, scoreColor]}>
                   {word.expected_word}
                 </Text>
                 
                 <View style={styles.wordDetailsContainer}>
-                  <Text style={styles.wordScore}>{score}%</Text>
+                  {errorPercent > 0 && (
+                    <Text style={[styles.errorPercentage, errorPercent > 30 ? styles.highErrorText : styles.lowErrorText]}>
+                      {errorPercent}% error
+                    </Text>
+                  )}
+                  
+                  {word.result_phonemes && (
+                    <Text style={styles.phonemeText}>
+                      /{word.result_phonemes}/
+                    </Text>
+                  )}
                 </View>
               </View>
             );
@@ -170,31 +173,21 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     fontSize: 14,
   },
-  sentenceComparisonContainer: {
-    marginBottom: 10,
+  
+  // New speech result display
+  speechResult: {
+    backgroundColor: 'rgba(0,0,0,0.03)',
+    padding: 10,
+    borderRadius: 5,
+    marginBottom: 8,
   },
-  comparisonRow: {
-    flexDirection: 'row',
-    marginBottom: 4,
-    alignItems: 'center',
-    flexWrap: 'wrap',
-  },
-  comparisonLabel: {
-    fontWeight: 'bold',
-    marginRight: 6,
-    fontSize: 13,
-    color: '#555',
-  },
-  expectedText: {
+  speechResultText: {
     fontSize: 14,
     color: '#333',
-    flex: 1,
+    fontStyle: 'italic',
   },
-  recognizedText: {
-    fontSize: 14,
-    color: '#333',
-    flex: 1,
-  },
+  
+  // Redesigned word analysis
   wordAnalysisContainer: {
     marginVertical: 4,
   },
@@ -203,31 +196,45 @@ const styles = StyleSheet.create({
     fontSize: 14,
     marginBottom: 6,
   },
-  wordsContainer: {
+  wordsGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
+    justifyContent: 'flex-start',
   },
-  wordItem: {
-    marginRight: 8,
-    marginVertical: 3,
+  wordCard: {
+    backgroundColor: 'rgba(0,0,0,0.02)',
+    padding: 8,
+    borderRadius: 6,
+    margin: 4,
+    minWidth: 80,
     alignItems: 'center',
   },
   wordText: {
     fontSize: 14,
     fontWeight: '500',
+    marginBottom: 2,
   },
   wordDetailsContainer: {
     alignItems: 'center',
   },
-  wordScore: {
+  errorPercentage: {
     fontSize: 11,
     fontWeight: 'bold',
+    marginTop: 2,
+  },
+  highErrorText: {
+    color: '#F44336',
+  },
+  lowErrorText: {
+    color: '#FF9800',
   },
   phonemeText: {
     fontSize: 10,
     color: '#666',
     fontFamily: Platform.OS === 'ios' ? 'Menlo' : 'monospace',
+    marginTop: 2,
   },
+  
   // Word text colors based on score
   excellentWordText: {
     color: '#4CAF50', // Green

@@ -109,11 +109,14 @@ class PhoneticComparator:
 
             overall_accuracy_score = (max(0, total_expected_phonemes - total_distance) / max(total_expected_phonemes, 1e-9)) * 100 if total_expected_phonemes > 0 else 100.0
             overall_errors = self._summarize_errors(word_level_analysis)
+            fluency_score = self._calculate_fluency_score(result_words)
 
             return {
                 'accuracy_score': overall_accuracy_score / 100,
                 'word_level_analysis': word_level_analysis,
-                'overall_errors': overall_errors
+                'overall_errors': overall_errors,
+                'fluency_score': fluency_score,
+                'suggestions': self._generate_suggestions(word_level_analysis)
             }
 
         except Exception as e:
@@ -226,6 +229,34 @@ class PhoneticComparator:
                     highlighted_word += f"<span style='color: red;'>{phoneme}</span> "
             return highlighted_word.strip()
         return ""
+    
+    def _calculate_fluency_score(self, result_words: List[str]) -> float:
+        """Calculates a fluency score based on the number of pauses and hesitations."""
+        # Example: Simple fluency score based on word count and average word length
+        if not result_words:
+            return 0.0
+        
+        total_words = len(result_words)
+        total_length = sum(len(word) for word in result_words)
+        average_word_length = total_length / total_words if total_words > 0 else 0
+        
+        # Simple heuristic: longer average word length and more words indicate better fluency
+        fluency_score = min(100, (average_word_length * total_words) / 2)
+        return fluency_score
+
+    def _generate_suggestions(self, word_level_analysis: List[Dict]) -> List[str]:
+        """Generates suggestions based on the word-level analysis."""
+        suggestions = []
+        for analysis in word_level_analysis:
+            if analysis['errors']:
+                for error in analysis['error_details']:
+                    if error['type'] == 'substitution':
+                        suggestions.append(f"Try pronouncing '{error['expected']}' more clearly instead of '{error['result']}'.")
+                    elif error['type'] == 'insertion':
+                        suggestions.append(f"Try to avoid adding extra sounds like '{error['result']}'.")
+                    elif error['type'] == 'deletion':
+                        suggestions.append(f"Make sure to include the sound '{error['expected']}' in your pronunciation.")
+        return suggestions
 
 def analyze_pronunciation(expected_input, result_input, language='en'):
     """

@@ -1,8 +1,11 @@
 from myapp import create_app
 from myapp import db
+from myapp.config import Config
 from myapp.models import User, Course, UserRole
 from werkzeug.security import generate_password_hash
 from myapp import create_app
+from eralchemy import render_er
+
 
 if __name__ == '__main__':
     app = create_app()
@@ -45,5 +48,6 @@ if __name__ == '__main__':
             db.session.add(c)
         db.session.commit()
         print('Database created and user admin added')
+    render_er(Config.SQLALCHEMY_DATABASE_URI, 'er.png')
     
 
