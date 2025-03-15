@@ -32,7 +32,7 @@ export default function ListQuestionsScreen({ navigation }: { navigation: Naviga
   const [generatingQuestions, setGeneratingQuestions] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [topic, setTopic] = useState('');
-  const [difficulty, setDifficulty] = useState(1);
+  const [difficulty, setDifficulty] = useState(0);
   const [count, setCount] = useState('10');
   const [showGenerateModal, setShowGenerateModal] = useState(false);
 

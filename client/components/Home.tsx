@@ -83,13 +83,16 @@ export default function Home({ navigation, route }: HomeProps) {
       <Text style={styles.sectionTitle}>Learning Activities</Text>
 
       <View style={styles.cardContainer}>
-        <TouchableOpacity style={styles.card}>
+        <TouchableOpacity 
+        style={styles.card}
+        onPress={() => navigation.navigate('Communication')}
+        >
           <View style={[styles.iconContainer, { backgroundColor: '#e3f2fd' }]}>
-            <MaterialCommunityIcons name="book-open-variant" size={28} color="#1976d2" />
+            <MaterialCommunityIcons name="comment-question" size={28} color="#1976d2" />
           </View>
           <View style={styles.cardContent}>
-            <Text style={styles.cardTitle}>Vocabulary</Text>
-            <Text style={styles.cardDescription}>Learn new words and phrases</Text>
+            <Text style={styles.cardTitle}>Communication</Text>
+            <Text style={styles.cardDescription}>Practice English conversations</Text>
           </View>
         </TouchableOpacity>
 
@@ -155,6 +158,16 @@ export default function Home({ navigation, route }: HomeProps) {
           <View style={styles.cardContent}>
             <Text style={styles.cardTitle}>Test Speaking</Text>
             <Text style={styles.cardDescription}>Test your speaking skills</Text>
+          </View>
+        </TouchableOpacity>
+
+        <TouchableOpacity style={styles.card}>
+          <View style={[styles.iconContainer, { backgroundColor: '#e3f2fd' }]}>
+            <MaterialCommunityIcons name="book-open-variant" size={28} color="#1976d2" />
+          </View>
+          <View style={styles.cardContent}>
+            <Text style={styles.cardTitle}>Vocabulary</Text>
+            <Text style={styles.cardDescription}>Learn new words and phrases</Text>
           </View>
         </TouchableOpacity>
       </View>

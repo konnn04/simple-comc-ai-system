@@ -37,9 +37,9 @@ export default function SetUpSpeakingExercise({ navigation }: SetUpSpeakingExerc
   ];
 
   const difficulties = [
-    { value: 1, label: 'Easy', color: '#4CAF50' },
-    { value: 2, label: 'Medium', color: '#FF9800' },
-    { value: 3, label: 'Hard', color: '#F44336' }
+    { value: 0, label: 'Easy', color: '#4CAF50' },
+    { value: 1, label: 'Medium', color: '#FF9800' },
+    { value: 2, label: 'Hard', color: '#F44336' }
   ];
 
   const handleStartExercise = () => {

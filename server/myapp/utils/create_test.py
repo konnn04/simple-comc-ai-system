@@ -315,34 +315,34 @@ def generate_english_test(question_types=None, topics=None, difficulties=None, s
         'errors': errors
     }
 
-# Example usage:
-if __name__ == "__main__":
-    # Create a test on grammar and vocabulary at basic and intermediate level
-    test = generate_english_test(
-        question_types=['multiple_choice'],
-        topics=['grammar', 'vocabulary'],
-        difficulties=['basic'],
-        subjects=['travel', 'technology','games','vietnam', 'trends', 'social_media','Stories about IT students at Ho Chi Minh City Open University','Vietnamese social media topics'],
-        num_questions=30
-    )
+# # Example usage:
+# if __name__ == "__main__":
+#     # Create a test on grammar and vocabulary at basic and intermediate level
+#     test = generate_english_test(
+#         question_types=['multiple_choice'],
+#         topics=['grammar', 'vocabulary'],
+#         difficulties=['basic'],
+#         subjects=['travel', 'technology','games','vietnam', 'trends', 'social_media','Stories about IT students at Ho Chi Minh City Open University','Vietnamese social media topics'],
+#         num_questions=30
+#     )
     
-    # Save results to JSON file
-    import json
-    if test['success']:
-        output = {
-            "total_questions": test['total_questions'],
-            "questions": test['questions']
-        }
+#     # Save results to JSON file
+#     import json
+#     if test['success']:
+#         output = {
+#             "total_questions": test['total_questions'],
+#             "questions": test['questions']
+#         }
         
-        # Save file with nice formatting (indent=2)
-        with open('english_test_questions.json', 'w', encoding='utf-8') as f:
-            json.dump(output, f, ensure_ascii=False, indent=2)
+#         # Save file with nice formatting (indent=2)
+#         with open('english_test_questions.json', 'w', encoding='utf-8') as f:
+#             json.dump(output, f, ensure_ascii=False, indent=2)
             
-        print(f"Successfully created {test['total_questions']} questions and saved to english_test_questions.json")
-    else:
-        print("Errors occurred when creating questions:")
-        for error in test['errors']:
-            print(f"- Error: {error['error']}")
-            print(f"  Metadata: {error['metadata']}")
+#         print(f"Successfully created {test['total_questions']} questions and saved to english_test_questions.json")
+#     else:
+#         print("Errors occurred when creating questions:")
+#         for error in test['errors']:
+#             print(f"- Error: {error['error']}")
+#             print(f"  Metadata: {error['metadata']}")
 
 

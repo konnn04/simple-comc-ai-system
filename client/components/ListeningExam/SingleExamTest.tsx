@@ -1,9 +1,23 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, TextInput, ScrollView, Alert, BackHandler, ActivityIndicator, AppState } from 'react-native';
+import {
+  StyleSheet,
+  Text,
+  View,
+  TouchableOpacity,
+  TextInput,
+  ScrollView,
+  Alert,
+  BackHandler,
+  ActivityIndicator,
+  AppState,
+  SafeAreaView,
+  Dimensions
+} from 'react-native';
 import { authenticatedFetch } from '../../utils/api';
 import { HOST } from '../../constants/server';
 import { Audio, AVPlaybackStatus } from 'expo-av';
-import { Ionicons, MaterialIcons } from '@expo/vector-icons';
+import { Ionicons, MaterialIcons, FontAwesome5 } from '@expo/vector-icons';
+import Slider from '@react-native-community/slider';
 
 interface Question {
   question: string;
@@ -28,6 +42,7 @@ interface SingleExamTestProps {
 }
 
 let playCount_ = 0;
+const { width } = Dimensions.get('window');
 
 export default function SingleExamTest({ navigation, route }: SingleExamTestProps) {
   const { subject, examType } = route.params;
@@ -46,6 +61,9 @@ export default function SingleExamTest({ navigation, route }: SingleExamTestProp
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [playCount, setPlayCount] = useState(0);
+
+  const scrollViewRef = useRef<ScrollView>(null);
+  const questionsScrollViewRef = useRef<ScrollView>(null);
 
   // Fetch test data
   useEffect(() => {
@@ -413,7 +431,7 @@ export default function SingleExamTest({ navigation, route }: SingleExamTestProp
       case 'multiple_choice':
         return (
           <>
-            <Text style={styles.questionText}>{question.question}</Text>
+            <Text style={styles.questionText}>{currentQuestionIndex + 1}. {question.question}</Text>
             {question.options?.map((option, idx) => (
               <TouchableOpacity
                 key={idx}
@@ -423,7 +441,17 @@ export default function SingleExamTest({ navigation, route }: SingleExamTestProp
                 ]}
                 onPress={() => handleSelectAnswer(currentQuestionIndex, idx)}
               >
-                <Text style={styles.optionLetter}>{String.fromCharCode(65 + idx)}</Text>
+                <View style={[
+                  styles.optionCircle,
+                  answers[currentQuestionIndex] === idx ? styles.selectedOptionCircle : null
+                ]}>
+                  <Text style={[
+                    styles.optionLetter,
+                    answers[currentQuestionIndex] === idx ? styles.selectedOptionLetter : null
+                  ]}>
+                    {String.fromCharCode(65 + idx)}
+                  </Text>
+                </View>
                 <Text style={styles.optionText}>{option}</Text>
               </TouchableOpacity>
             ))}
@@ -433,12 +461,13 @@ export default function SingleExamTest({ navigation, route }: SingleExamTestProp
       case 'fill_in_the_blank':
         return (
           <>
-            <Text style={styles.questionText}>{question.question}</Text>
+            <Text style={styles.questionText}>{currentQuestionIndex + 1}. {question.question}</Text>
             <TextInput
               style={styles.fillBlankInput}
               value={fillInAnswers[currentQuestionIndex] || ''}
               onChangeText={(text) => handleFillInBlankChange(currentQuestionIndex, text)}
               placeholder="Type your answer here"
+              placeholderTextColor="#888"
             />
           </>
         );
@@ -446,26 +475,42 @@ export default function SingleExamTest({ navigation, route }: SingleExamTestProp
       case 'true_or_false':
         return (
           <>
-            <Text style={styles.questionText}>{question.question}</Text>
+            <Text style={styles.questionText}>{currentQuestionIndex + 1}. {question.question}</Text>
             <View style={styles.truefalseContainer}>
               <TouchableOpacity
                 style={[
                   styles.trueFalseButton,
-                  answers[currentQuestionIndex] === true ? styles.selectedOption : null
+                  answers[currentQuestionIndex] === true ? styles.selectedTrueFalse : null
                 ]}
                 onPress={() => handleSelectAnswer(currentQuestionIndex, true)}
               >
-                <Text style={styles.trueFalseText}>True</Text>
+                <Ionicons
+                  name={answers[currentQuestionIndex] === true ? "checkmark-circle" : "checkmark-circle-outline"}
+                  size={24}
+                  color={answers[currentQuestionIndex] === true ? "white" : "#666"}
+                />
+                <Text style={[
+                  styles.trueFalseText,
+                  answers[currentQuestionIndex] === true ? styles.selectedTrueFalseText : null
+                ]}>True</Text>
               </TouchableOpacity>
 
               <TouchableOpacity
                 style={[
                   styles.trueFalseButton,
-                  answers[currentQuestionIndex] === false ? styles.selectedOption : null
+                  answers[currentQuestionIndex] === false ? styles.selectedTrueFalse : null
                 ]}
                 onPress={() => handleSelectAnswer(currentQuestionIndex, false)}
               >
-                <Text style={styles.trueFalseText}>False</Text>
+                <Ionicons
+                  name={answers[currentQuestionIndex] === false ? "close-circle" : "close-circle-outline"}
+                  size={24}
+                  color={answers[currentQuestionIndex] === false ? "white" : "#666"}
+                />
+                <Text style={[
+                  styles.trueFalseText,
+                  answers[currentQuestionIndex] === false ? styles.selectedTrueFalseText : null
+                ]}>False</Text>
               </TouchableOpacity>
             </View>
           </>
@@ -475,13 +520,18 @@ export default function SingleExamTest({ navigation, route }: SingleExamTestProp
         return <Text>Unknown question type</Text>;
     }
   };
-
   // Navigation buttons at the bottom
   const renderQuestionNav = () => {
     if (!test) return null;
 
     return (
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.questionNavContainer}>
+      <ScrollView 
+        ref={questionsScrollViewRef}
+        horizontal 
+        showsHorizontalScrollIndicator={false} 
+        style={styles.questionNavContainer}
+        contentContainerStyle={styles.questionNavContent}
+      >
         {test.questions.map((_, index) => {
           const isAnswered = answers[index] !== -1 && answers[index] !== '' && answers[index] !== null;
           return (
@@ -492,12 +542,20 @@ export default function SingleExamTest({ navigation, route }: SingleExamTestProp
                 isAnswered ? styles.answeredQuestionButton : styles.unansweredQuestionButton,
                 currentQuestionIndex === index ? styles.currentQuestionButton : null
               ]}
-              onPress={() => setCurrentQuestionIndex(index)}
+              onPress={() => {
+                setCurrentQuestionIndex(index);
+                // Scroll to center the selected question
+                questionsScrollViewRef.current?.scrollTo({ 
+                  x: index * 50 - width/2 + 25, 
+                  animated: true 
+                });
+              }}
             >
               <Text
                 style={[
                   styles.questionNumText,
-                  currentQuestionIndex === index ? styles.currentQuestionText : null
+                  currentQuestionIndex === index ? styles.currentQuestionText : null,
+                  isAnswered ? styles.answeredQuestionText : null
                 ]}
               >
                 {index + 1}
@@ -511,40 +569,29 @@ export default function SingleExamTest({ navigation, route }: SingleExamTestProp
 
   if (loading) {
     return (
-      <View style={[styles.container, styles.centered]}>
-        <ActivityIndicator size="large" color="#2196F3" />
+      <View style={styles.loaderContainer}>
+        <ActivityIndicator size="large" color="#3F51B5" />
         <Text style={styles.loadingText}>Loading listening test...</Text>
       </View>
     );
   }
 
-  if (error) {
+  if (error || !test) {
     return (
-      <View style={[styles.container, styles.centered]}>
-        <Text style={styles.errorText}>{error}</Text>
+      <View style={styles.loaderContainer}>
+        <Ionicons name="alert-circle" size={60} color="#f44336" />
+        <Text style={styles.errorText}>{error || "Failed to load test data"}</Text>
         <TouchableOpacity
-          style={styles.navButton}
+          style={styles.errorButton}
           onPress={() => navigation.goBack()}
         >
-          <Text style={styles.navButtonText}>Go Back</Text>
+          <Text style={styles.errorButtonText}>Go Back</Text>
         </TouchableOpacity>
       </View>
     );
   }
 
-  if (!test) {
-    return (
-      <View style={[styles.container, styles.centered]}>
-        <Text style={styles.errorText}>Failed to load test data</Text>
-        <TouchableOpacity
-          style={styles.navButton}
-          onPress={() => navigation.goBack()}
-        >
-          <Text style={styles.navButtonText}>Go Back</Text>
-        </TouchableOpacity>
-      </View>
-    );
-  }
+
 
   return (
     <View style={styles.container}>
@@ -686,59 +733,143 @@ export default function SingleExamTest({ navigation, route }: SingleExamTestProp
 
 const styles = StyleSheet.create({
   container: {
-    padding: 20,
-    backgroundColor: '#f5f5f5',
+    flex: 1,
+    backgroundColor: '#f8f9fa',
   },
-  centered: {
+  loaderContainer: {
+    flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: '#f8f9fa',
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 20,
+    paddingHorizontal: 20,
+    paddingVertical: 15,
+    backgroundColor: 'white',
+    borderBottomWidth: 1,
+    borderBottomColor: '#eaeaea',
+    elevation: 2,
   },
-  title: {
-    fontSize: 20,
-    fontWeight: 'bold',
+  headerLeft: {
+    flex: 1,
   },
-  timer: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    backgroundColor: '#fff',
+  subject: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#333',
+  },
+  examType: {
+    fontSize: 14,
+    color: '#666',
+    marginTop: 2,
+  },
+  timerContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#f0f0f0',
     paddingVertical: 6,
     paddingHorizontal: 12,
     borderRadius: 20,
-    borderWidth: 1,
-    borderColor: '#ddd',
   },
-  playButton: {
-    backgroundColor: '#2196F3',
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderRadius: 5,
-    marginTop: 10,
-  },
-  playButtonText: {
-    color: '#fff',
-    fontWeight: 'bold',
+  timerText: {
     fontSize: 16,
+    fontWeight: '600',
+    color: '#333',
+    marginLeft: 5,
   },
-  progressInfo: {
+  audioSection: {
+    backgroundColor: 'white',
+    margin: 15,
+    borderRadius: 12,
+    padding: 15,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    elevation: 2,
+  },
+  audioTitle: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 15,
+  },
+  audioTitleText: {
+    fontSize: 16,
+    fontWeight: '600',
+    marginLeft: 8,
+    color: '#333',
+  },
+  playWarning: {
+    color: '#f44336',
+    fontWeight: '700',
+  },
+  progressBarContainer: {
+    width: '100%',
+    marginBottom: 15,
+  },
+  progressBar: {
+    width: '100%',
+    height: 40,
+  },
+  timeDisplay: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    paddingHorizontal: 5,
+  },
+  timeText: {
+    fontSize: 14,
+    color: '#666',
+  },
+  audioControls: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  audioControlButton: {
+    padding: 10,
+  },
+  playPauseButton: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: '#3F51B5',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginHorizontal: 30,
+  },
+  disabledButton: {
+    opacity: 0.5,
+  },
+  playCountContainer: {
+    padding: 5,
+  },
+  playCountText: {
+    fontSize: 14,
+    color: '#666',
+    fontWeight: '500',
+  },
+  progressIndicator: {
+    paddingHorizontal: 20,
     marginBottom: 5,
   },
   progressText: {
     fontSize: 14,
     color: '#666',
+    fontWeight: '500',
   },
   questionNavContainer: {
-    flexDirection: 'row',
-    marginVertical: 10,
-    maxHeight: 50,
-    flexShrink: 0,
+    backgroundColor: '#fff',
+    paddingVertical: 12,
+    paddingHorizontal: 15,
+    borderTopWidth: 1,
+    borderBottomWidth: 1,
+    borderColor: '#eaeaea',
+  },
+  questionNavContent: {
+    paddingHorizontal: 5,
   },
   questionNumButton: {
     width: 40,
@@ -746,110 +877,169 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 8,
+    marginHorizontal: 5,
   },
   unansweredQuestionButton: {
-    backgroundColor: '#ffffff',
+    backgroundColor: '#f0f0f0',
     borderWidth: 1,
-    borderColor: '#cccccc',
+    borderColor: '#ddd',
   },
   answeredQuestionButton: {
-    backgroundColor: '#4CAF50',
+    backgroundColor: '#C5CAE9',
+    borderWidth: 1,
+    borderColor: '#7986CB',
   },
   currentQuestionButton: {
     borderWidth: 2,
-    borderColor: '#2196F3',
+    borderColor: '#3F51B5',
   },
   questionNumText: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#333333',
+    color: '#555',
   },
   currentQuestionText: {
-    color: '#2196F3',
+    color: '#3F51B5',
+  },
+  answeredQuestionText: {
+    color: '#3F51B5',
+  },
+  questionScrollContainer: {
+    flex: 1,
+    marginBottom: 10,
+  },
+  questionContentContainer: {
+    padding: 15,
   },
   questionContainer: {
-    backgroundColor: '#fff',
-    borderRadius: 10,
+    backgroundColor: 'white',
+    borderRadius: 12,
     padding: 20,
-    marginBottom: 20,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
-    shadowRadius: 5,
+    shadowRadius: 3,
     elevation: 2,
   },
   questionText: {
-    fontSize: 18,
-    fontWeight: 'bold',
+    fontSize: 17,
+    fontWeight: '600',
+    lineHeight: 24,
+    color: '#333',
     marginBottom: 20,
   },
   optionButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#f0f0f0',
+    backgroundColor: '#f8f9fa',
     padding: 15,
-    borderRadius: 5,
-    marginBottom: 10,
+    borderRadius: 8,
+    marginBottom: 12,
+    borderWidth: 1,
+    borderColor: '#e0e0e0',
+  },
+  optionCircle: {
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    backgroundColor: '#eee',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 12,
+  },
+  selectedOptionCircle: {
+    backgroundColor: '#3F51B5',
   },
   optionLetter: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: 'bold',
-    marginRight: 10,
+    color: '#666',
+  },
+  selectedOptionLetter: {
+    color: 'white',
   },
   optionText: {
     fontSize: 16,
+    color: '#333',
     flex: 1,
   },
   selectedOption: {
-    backgroundColor: '#bbdefb',
-    borderColor: '#1976d2',
-    borderWidth: 1,
+    backgroundColor: '#EDE7F6',
+    borderColor: '#7986CB',
   },
   fillBlankInput: {
     borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 5,
+    borderColor: '#e0e0e0',
+    borderRadius: 8,
     padding: 15,
     fontSize: 16,
-    backgroundColor: '#f9f9f9',
+    backgroundColor: '#f8f9fa',
   },
   truefalseContainer: {
     flexDirection: 'row',
-    justifyContent: 'space-around',
+    justifyContent: 'space-between',
     marginTop: 10,
   },
   trueFalseButton: {
-    backgroundColor: '#f0f0f0',
-    padding: 15,
-    borderRadius: 5,
-    width: '45%',
+    flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#f8f9fa',
+    paddingVertical: 15,
+    paddingHorizontal: 20,
+    borderRadius: 8,
+    width: '47%',
+    borderWidth: 1,
+    borderColor: '#e0e0e0',
+  },
+  selectedTrueFalse: {
+    backgroundColor: '#3F51B5',
+    borderColor: '#3F51B5',
   },
   trueFalseText: {
     fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: '600',
+    color: '#555',
+    marginLeft: 8,
   },
-  navigationContainer: {
+  selectedTrueFalseText: {
+    color: 'white',
+  },
+  navigationFooter: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    backgroundColor: 'white',
+    padding: 15,
+    borderTopWidth: 1,
+    borderTopColor: '#eaeaea',
   },
   navButton: {
-    backgroundColor: '#2196F3',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
     paddingVertical: 12,
     paddingHorizontal: 20,
-    borderRadius: 5,
+    borderRadius: 8,
     flex: 1,
     marginHorizontal: 5,
-    alignItems: 'center',
+  },
+  prevButton: {
+    backgroundColor: '#607D8B',
+  },
+  nextButton: {
+    backgroundColor: '#3F51B5',
+  },
+  submitButton: {
+    backgroundColor: '#4CAF50',
   },
   navButtonText: {
-    color: '#fff',
-    fontWeight: 'bold',
+    color: 'white',
+    fontWeight: '600',
     fontSize: 16,
+    marginHorizontal: 5,
   },
-  disabledButton: {
-    backgroundColor: '#cccccc',
+  disabledNavButton: {
+    backgroundColor: '#bdbdbd',
   },
   loadingText: {
     marginTop: 10,
@@ -860,115 +1050,107 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#f44336',
     textAlign: 'center',
-    marginBottom: 20,
+    marginVertical: 20,
+    marginHorizontal: 30,
   },
-  audioControlsRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    marginBottom: 10,
+  errorButton: {
+    backgroundColor: '#3F51B5',
+    paddingVertical: 12,
+    paddingHorizontal: 30,
+    borderRadius: 8,
+    marginTop: 10,
   },
-  audioControlText: {
-    color: '#fff',
-    fontWeight: 'bold',
+  errorButtonText: {
+    color: 'white',
+    fontWeight: '600',
     fontSize: 16,
   },
-  audioSection: {
-  backgroundColor: '#fff',
-  borderRadius: 10,
-  padding: 15,
-  marginBottom: 20,
-  shadowColor: '#000',
-  shadowOffset: { width: 0, height: 2 },
-  shadowOpacity: 0.1,
-  shadowRadius: 5,
-  elevation: 2,
-},
-audioPlayerContainer: {
-  width: '100%',
-},
-topNavContainer: {
-  flexDirection: 'row',
-  justifyContent: 'space-between',
-  alignItems: 'center',
-  marginBottom: 15,
-  borderBottomWidth: 1,
-  borderBottomColor: '#eee',
-  paddingBottom: 10,
-},
-questionIndicator: {
-  fontSize: 16,
-  fontWeight: '500',
-  color: '#555',
-},
-navIconButton: {
-  padding: 5,
-},
-playerControls: {
-  flexDirection: 'row',
-  justifyContent: 'center',
-  alignItems: 'center',
-  marginVertical: 10,
-},
-audioControlButton: {
-  alignItems: 'center',
-  marginHorizontal: 10,
-},
-audioRestartButton: {
-  alignItems: 'center',
-  marginHorizontal: 10,
-},
-progressBarContainer: {
-  width: '100%',
-  marginTop: 10,
-},
-progressBarBackground: {
-  height: 6,
-  backgroundColor: '#e0e0e0',
-  borderRadius: 3,
-  overflow: 'hidden',
-},
-progressBarFill: {
-  height: '100%',
-  backgroundColor: '#4CAF50',
-  borderRadius: 3,
-},
-timeDisplay: {
-  flexDirection: 'row',
-  justifyContent: 'space-between',
-  marginTop: 8,
-},
-timeText: {
-  fontSize: 14,
-  color: '#666',
-},
-playsRemaining: {
-  fontSize: 14,
-  fontWeight: 'bold',
-  color: '#666',
-},
-warningText: {
-  color: '#f44336',
-},
-submitContainer: {
-  marginTop: 20,
-  alignItems: 'center',
-},
-submitButton: {
-  backgroundColor: '#4CAF50',
-  paddingVertical: 15,
-  paddingHorizontal: 30,
-  borderRadius: 30,
-  alignItems: 'center',
-  width: '80%',
-  shadowColor: '#000',
-  shadowOffset: { width: 0, height: 2 },
-  shadowOpacity: 0.1,
-  shadowRadius: 3,
-  elevation: 2,
-},
-submitButtonText: {
-  color: '#fff',
-  fontWeight: 'bold',
-  fontSize: 16,
-},
+  submitContainer: {
+    backgroundColor: 'white',
+    padding: 15,
+    borderTopWidth: 1,
+    borderTopColor: '#eaeaea',
+    elevation: 2,
+  },
+  submitButtonText: {
+    color: 'white',
+    fontWeight: '600',
+    fontSize: 16,
+  },
+  progressInfo: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    padding: 15,
+    backgroundColor: 'white',
+    borderBottomWidth: 1,
+    borderBottomColor: '#eaeaea',
+    elevation: 2,
+  },
+  title: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#333',
+  },
+  timer: {
+    fontSize: 16,
+    color: '#666',
+  },
+  audioPlayerContainer: {
+    backgroundColor: 'white',
+    padding: 15,
+    borderRadius: 12,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    elevation: 2,
+  },
+  topNavContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 15,
+  },
+  navIconButton: {
+    padding: 10,
+  },
+  questionIndicator: {
+    fontSize: 16,
+    color: '#666',
+    fontWeight: '600',
+  },
+  playerControls: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 15,
+  },
+  progressBarBackground: {
+    height: 10,
+    backgroundColor: '#f0f0f0',
+    borderRadius: 5,
+  },
+  progressBarFill: {
+    height: 10,
+    backgroundColor: '#3F51B5',
+    borderRadius: 5,
+  },
+
+  playsRemaining: {
+    fontSize: 12,
+    color: '#f44336',
+    fontWeight: '600',
+  },
+  warningText: {
+    color: '#f44336',
+  },
+  audioRestartButton: {
+    padding: 10,
+  },
+  navigationContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    backgroundColor: 'white',
+  }
 });
