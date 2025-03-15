@@ -160,9 +160,7 @@ flask run --debug
 
 ### Giao diện ứng dụng
 
-Bổ sung sau
-
-[Link đến video demo trên YouTube](https://youtu.be/your-video-id)
+https://github.com/konnn04/simple-comc-ai-system/raw/refs/heads/main/screenshot/ou.mp4
 
 ## IV. KẾT
 
