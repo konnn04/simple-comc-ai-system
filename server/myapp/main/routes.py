@@ -440,7 +440,7 @@ def generate_speaking_practice_questions(current_user_id):
             return jsonify({'success': False, 'error': 'No data provided'}), 400
             
         topic = data.get('topic', 'general conversation')
-        difficulty = int(data.get('difficulty', 1))
+        difficulty = int(data.get('difficulty', 0))
         count = int(data.get('count', 10))
         
         if count > 30:  # Limit to reasonable number

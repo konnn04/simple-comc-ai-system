@@ -22,6 +22,8 @@ import SpeakingExerciseTest from './components/SpeakingExam/ExamTest';
 import ListQuestionsScreen from './components/AnswerSpeakingQuestion/ListQuestion';
 import SpeakingPractice from './components/AnswerSpeakingQuestion/AnswerQuestion';
 
+import Communication from './components/Communication'
+
 import { SafeAreaProvider, SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 const Stack = createNativeStackNavigator();
 export default function App() {
@@ -149,7 +151,18 @@ export default function App() {
                 headerTitle: 'Answer Speaking Question',
                 headerShown: false
               }}
+      
             />
+
+            <Stack.Screen
+              name="Communication"
+              component={Communication}
+              options={{
+                headerTitle: 'Communication',
+                headerShown: true
+              }}
+            />
+
           </Stack.Navigator>
           <StatusBar style="auto" />
         </NavigationContainer>

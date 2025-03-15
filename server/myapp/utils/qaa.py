@@ -323,7 +323,7 @@ def generate_speaking_questions(
     """
     try:
         difficulty_name = DIFFICULTY_NAMES[difficulty_level] if difficulty_level in [0, 1, 2] else "mixed"
-        
+        print(difficulty_name)
         prompt = f"""
         Generate {count} engaging English speaking practice questions about {topic} at {difficulty_name} level.
         
