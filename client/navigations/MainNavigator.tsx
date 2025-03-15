@@ -1,15 +1,14 @@
-import React, { useEffect, useState } from 'react';
-import { BottomNavigation, BottomNavigationAction } from '@mui/material';
+import React, { useEffect } from 'react';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { Ionicons } from '@expo/vector-icons';
 import Home from '../components/Home';
 import UserInfo from '../components/UserInfo';
 import { useAuthUser } from '../utils/useAuthUser';
-import HomeIcon from '@mui/icons-material/Home';
-import PersonIcon from '@mui/icons-material/Person';
 
+const Tab = createBottomTabNavigator();
 
 export default function MainNavigator({ navigation }: any) {
   const { checkValidToken } = useAuthUser();
-  const [value, setValue] = useState(0);
 
   useEffect(() => {
     (async () => {
@@ -20,33 +19,37 @@ export default function MainNavigator({ navigation }: any) {
     })();
   }, []);
 
-  const renderScene = () => {
-    switch (value) {
-      case 0:
-        return <Home navigation={navigation} route={{}} />;
-      case 1:
-        return <UserInfo navigation={navigation} />;
-      default:
-        return <Home navigation={navigation} route={{}} />;
-    }
-  };
-
   return (
-    <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
-      <div style={{ flex: 1 }}>
-        {renderScene()}
-      </div>
-      <BottomNavigation
-        showLabels
-        value={value}
-        onChange={(event, newValue) => {
-          setValue(newValue);
-        }}
-        style={{ position: 'fixed', bottom: 0, width: '100%' }}
-      >
-        <BottomNavigationAction label="Home" icon={<HomeIcon />} />
-        <BottomNavigationAction label="User Info" icon={< PersonIcon />} />
-      </BottomNavigation>
-    </div>
+    <Tab.Navigator
+      screenOptions={({ route }) => ({
+        tabBarIcon: ({ focused, color, size }) => {
+          let iconName: any;
+          
+          if (route.name === 'Home') {
+            iconName = focused ? 'home' : 'home-outline';
+          } else if (route.name === 'Profile') {
+            iconName = focused ? 'person' : 'person-outline';
+          }
+          
+          return <Ionicons name={iconName} size={size} color={color} />;
+        },
+        tabBarActiveTintColor: '#2196F3',
+        tabBarInactiveTintColor: 'gray',
+      })}
+    >
+      <Tab.Screen 
+        name="Home" 
+        component={Home} 
+        options={{ headerShown: false }}
+      />
+      <Tab.Screen 
+        name="Profile" 
+        component={UserInfo}
+        options={{ headerShown: false }}
+      />
+    </Tab.Navigator>
   );
 }
+
+
+

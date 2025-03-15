@@ -171,3 +171,5 @@ cython_debug/
 .pypirc
 .expo
 node_modules/
+server/myapp/tech/models/*
+client/android/

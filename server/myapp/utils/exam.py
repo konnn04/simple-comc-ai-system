@@ -37,35 +37,43 @@ def check_score(answers, answers_session):
             score += 1
     return score
 
-def check_score_speaking(answers, answers_session):
-    if len(answers) != len(answers_session):
+def check_score_listening(answers, true_answers):
+    if len(answers) != len(true_answers):
         return -1
     score = 0
+    u_exam = []
     # If answer is int -> 0 = "A", 1 = "B", 2 = "C", 3 = "D"
     # If answer is str answers == answers_session
     # If answer is bool -> True = True, False = False
     for i in range(len(answers)):
-        if compare_answer(answers[i], answers_session[i]):
+        [ua, ca, c] = compare_answer(answers[i], true_answers[i])
+        u_exam.append({
+            "user_answer": ua,
+            "correct_answer": ca,
+            "correct": c
+        })
+        if c:
             score += 1
+    return score, u_exam
             
 # Hàm so sánh tương đồng giữa câu trả lời và đáp án
 def compare_answer(answer, answer_session):
     if type(answer) == int:
         chars = "ABCD"
-        return chars[answer] == answer_session
+        return [chars[answer], answer_session, chars[answer] == answer_session]
     if type(answer) == str:
         # So sánh chuỗi không phân biệt hoa thường và chấp nhận sai lệch 1 ký tự khi chuỗi > 5 ký tự. VD: "hello" và "hellp" vẫn chấp nhận, "apple" và 'allpe' không chấp nhận
         if len(answer) > 5:
             if answer.lower() == answer_session.lower():
-                return True
+                return [answer, answer_session, True]
             count = 0
             for i in range(len(answer)):
                 if answer[i].lower() != answer_session[i].lower():
                     count += 1
-            return count <= len(answer) // 5
-        return answer.lower() == answer_session.lower()
+            return [answer, answer_session, count <= len(answer) // 5]
+        return [answer, answer_session, answer.lower() == answer_session.lower()]
     if type(answer) == bool:
-        return answer == answer_session
-    return False
+        return [answer, answer_session, answer == answer_session]
+    return [0,0,False]
 
 

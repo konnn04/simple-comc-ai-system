@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { HOST } from '../constants/server';
 
 interface AuthUser {
   token: string | null;
@@ -51,7 +52,7 @@ export const useAuthUser = () => {
       return false;
     }
     try {
-      const response = await fetch('http://localhost:5000/auth/verify', {
+      const response = await fetch(`${HOST}auth/verify`, {
         method: 'GET',
         headers: {
           Authorization: `Bearer ${token}`,

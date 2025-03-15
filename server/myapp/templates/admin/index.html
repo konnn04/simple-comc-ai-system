@@ -1,10 +1,111 @@
-{% extends 'admin/base.html' %}
+{% extends 'admin/master.html' %}
 
-{% block title %}Admin Dashboard{% endblock %}
+{% block title %}Bảng điều khiển quản trị{% endblock %}
 
 {% block body %}
-<div class="jumbotron">
-    <h1 class="display-4">Welcome to the Admin Dashboard</h1>
-    <p class="lead">This is a simple admin interface.</p>
+<div class="container">
+    <div class="jumbotron">
+        <h1>Chào mừng đến với bảng điều khiển quản trị</h1>
+        <p class="lead">Quản lý trung tâm hệ thống học tập trực tuyến.</p>
+    </div>
+    
+    <div class="row">
+        <div class="col-md-4">
+            <div class="panel panel-primary">
+                <div class="panel-heading">
+                    <h3 class="panel-title">Học sinh</h3>
+                </div>
+                <div class="panel-body text-center">
+                    <h2>{{ student_count }}</h2>
+                    <p>học sinh đang hoạt động</p>
+                    <a href="{{ url_for('students.index') }}" class="btn btn-primary">Quản lý học sinh</a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="panel panel-success">
+                <div class="panel-heading">
+                    <h3 class="panel-title">Giáo viên</h3>
+                </div>
+                <div class="panel-body text-center">
+                    <h2>{{ teacher_count }}</h2>
+                    <p>giáo viên đang hoạt động</p>
+                    <a href="{{ url_for('user.index_view') }}" class="btn btn-success">Quản lý giáo viên</a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="panel panel-info">
+                <div class="panel-heading">
+                    <h3 class="panel-title">Khóa học</h3>
+                </div>
+                <div class="panel-body text-center">
+                    <h2>{{ course_count }}</h2>
+                    <p>khóa học có sẵn</p>
+                    <a href="{{ url_for('course.index_view') }}" class="btn btn-info">Quản lý khóa học</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <div class="panel panel-warning">
+                <div class="panel-heading">
+                    <h3 class="panel-title">Bài thi nghe</h3>
+                </div>
+                <div class="panel-body text-center">
+                    <h2>{{ listening_exam_count }}</h2>
+                    <p>bài thi nghe đang có sẵn</p>
+                    <a href="{{ url_for('listeningexam.index_view') }}" class="btn btn-warning">Quản lý bài thi nghe</a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6">
+            <div class="panel panel-danger">
+                <div class="panel-heading">
+                    <h3 class="panel-title">Bài thi nói</h3>
+                </div>
+                <div class="panel-body text-center">
+                    <h2>{{ speaking_exam_count }}</h2>
+                    <p>bài thi nói đang có sẵn</p>
+                    <a href="{{ url_for('speakingexam.index_view') }}" class="btn btn-danger">Quản lý bài thi nói</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row mt-4 mb-4">
+        <div class="col-md-12">
+            <div class="well">
+                <h3>Các chức năng quản trị</h3>
+                <div class="row">
+                    <div class="col-md-3">
+                        <a href="{{ url_for('statistics.index') }}" class="btn btn-lg btn-block btn-default">
+                            <i class="glyphicon glyphicon-stats"></i> Thống kê hệ thống
+                        </a>
+                    </div>
+                    <div class="col-md-3">
+                        <a href="{{ url_for('user.index_view') }}" class="btn btn-lg btn-block btn-default">
+                            <i class="glyphicon glyphicon-user"></i> Quản lý người dùng
+                        </a>
+                    </div>
+                    <div class="col-md-3">
+                        <a href="{{ url_for('course.index_view') }}" class="btn btn-lg btn-block btn-default">
+                            <i class="glyphicon glyphicon-book"></i> Quản lý khóa học
+                        </a>
+                    </div>
+                    <div class="col-md-3">
+                        <a href="{{ url_for('listeningexam.index_view') }}" class="btn btn-lg btn-block btn-default">
+                            <i class="glyphicon glyphicon-headphones"></i> Quản lý bài thi nghe
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 {% endblock %}

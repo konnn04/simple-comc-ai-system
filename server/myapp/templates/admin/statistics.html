@@ -1,0 +1,408 @@
+{% extends 'admin/master.html' %}
+
+{% block head %}
+    {{ super() }}
+    <!-- Chart.js Library -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
+{% endblock %}
+
+{% block body %}
+<div class="container">
+    <h1>Thống kê hệ thống</h1>
+    
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h4>Thống kê người dùng</h4>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="text-center mb-4">
+                                <h5>Học sinh</h5>
+                                <h2>{{ total_users }}</h2>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="text-center mb-4">
+                                <h5>Giáo viên</h5>
+                                <h2>{{ total_teachers }}</h2>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- User distribution chart -->
+                    <canvas id="userDistributionChart" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-success text-white">
+                    <h4>Thống kê nội dung</h4>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="text-center mb-4">
+                                <h5>Khóa học</h5>
+                                <h2>{{ total_courses }}</h2>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="text-center mb-4">
+                                <h5>Bài thi nghe</h5>
+                                <h2>{{ total_listening_exams }}</h2>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="text-center mb-4">
+                                <h5>Bài thi nói</h5>
+                                <h2>{{ total_speaking_exams }}</h2>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Content distribution chart -->
+                    <canvas id="contentDistributionChart" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row mt-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header bg-info text-white">
+                    <h4>Thống kê hoạt động học tập</h4>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="text-center mb-4">
+                                <h5>Lượt làm bài nghe</h5>
+                                <h2>{{ listening_history_count }}</h2>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="text-center mb-4">
+                                <h5>Lượt làm bài nói</h5>
+                                <h2>{{ speaking_history_count }}</h2>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Activity comparison chart -->
+                    <canvas id="activityComparisonChart" height="100"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-warning text-white">
+                    <h4>Điểm trung bình theo kỹ năng</h4>
+                </div>
+                <div class="card-body">
+                    <!-- Average scores chart -->
+                    <canvas id="averageScoresChart" height="250"></canvas>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-danger text-white">
+                    <h4>Hoạt động học tập theo thời gian</h4>
+                </div>
+                <div class="card-body">
+                    <!-- Activity timeline chart -->
+                    <canvas id="activityTimelineChart" height="250"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row mt-4 mb-5">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header bg-dark text-white">
+                    <h4>Phân phối điểm số sinh viên</h4>
+                </div>
+                <div class="card-body">
+                    <!-- Score distribution chart -->
+                    <canvas id="scoreDistributionChart" height="100"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+</div>
+
+<script>
+// User Distribution Chart
+const userDistributionChart = new Chart(
+    document.getElementById('userDistributionChart'),
+    {
+        type: 'pie',
+        data: {
+            labels: ['Học sinh', 'Giáo viên'],
+            datasets: [{
+                label: 'Phân bố người dùng',
+                data: [{{ total_users }}, {{ total_teachers }}],
+                backgroundColor: [
+                    'rgba(54, 162, 235, 0.7)',
+                    'rgba(75, 192, 192, 0.7)'
+                ],
+                borderColor: [
+                    'rgba(54, 162, 235, 1)',
+                    'rgba(75, 192, 192, 1)'
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'bottom'
+                },
+                title: {
+                    display: true,
+                    text: 'Phân bố người dùng theo vai trò'
+                }
+            }
+        }
+    }
+);
+
+// Content Distribution Chart
+const contentDistributionChart = new Chart(
+    document.getElementById('contentDistributionChart'),
+    {
+        type: 'bar',
+        data: {
+            labels: ['Khóa học', 'Bài thi nghe', 'Bài thi nói'],
+            datasets: [{
+                label: 'Số lượng',
+                data: [{{ total_courses }}, {{ total_listening_exams }}, {{ total_speaking_exams }}],
+                backgroundColor: [
+                    'rgba(255, 99, 132, 0.7)',
+                    'rgba(153, 102, 255, 0.7)',
+                    'rgba(255, 159, 64, 0.7)'
+                ],
+                borderColor: [
+                    'rgba(255, 99, 132, 1)',
+                    'rgba(153, 102, 255, 1)',
+                    'rgba(255, 159, 64, 1)'
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            },
+            plugins: {
+                title: {
+                    display: true,
+                    text: 'Số lượng nội dung theo loại'
+                },
+                legend: {
+                    display: false
+                }
+            }
+        }
+    }
+);
+
+// Activity Comparison Chart
+const activityComparisonChart = new Chart(
+    document.getElementById('activityComparisonChart'),
+    {
+        type: 'bar',
+        data: {
+            labels: ['Bài thi nghe', 'Bài thi nói'],
+            datasets: [{
+                label: 'Lượt làm bài',
+                data: [{{ listening_history_count }}, {{ speaking_history_count }}],
+                backgroundColor: [
+                    'rgba(54, 162, 235, 0.7)',
+                    'rgba(255, 206, 86, 0.7)'
+                ],
+                borderColor: [
+                    'rgba(54, 162, 235, 1)',
+                    'rgba(255, 206, 86, 1)'
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            indexAxis: 'y', // Horizontal bar chart
+            scales: {
+                x: {
+                    beginAtZero: true
+                }
+            },
+            plugins: {
+                title: {
+                    display: true,
+                    text: 'So sánh hoạt động học tập'
+                }
+            }
+        }
+    }
+);
+
+// Average Scores Chart - Mock data (in real implementation, pass this from Flask)
+const averageScoresChart = new Chart(
+    document.getElementById('averageScoresChart'),
+    {
+        type: 'radar',
+        data: {
+            labels: ['Nghe', 'Nói', 'Đọc', 'Viết', 'Từ vựng', 'Ngữ pháp'],
+            datasets: [{
+                label: 'Điểm trung bình',
+                data: [7.5, 6.8, 8.2, 6.5, 7.2, 6.9],
+                fill: true,
+                backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                borderColor: 'rgb(54, 162, 235)',
+                pointBackgroundColor: 'rgb(54, 162, 235)',
+                pointBorderColor: '#fff',
+                pointHoverBackgroundColor: '#fff',
+                pointHoverBorderColor: 'rgb(54, 162, 235)'
+            }]
+        },
+        options: {
+            elements: {
+                line: {
+                    borderWidth: 3
+                }
+            },
+            plugins: {
+                title: {
+                    display: true,
+                    text: 'Điểm trung bình theo kỹ năng'
+                }
+            },
+            scales: {
+                r: {
+                    angleLines: {
+                        display: true
+                    },
+                    suggestedMin: 0,
+                    suggestedMax: 10
+                }
+            }
+        }
+    }
+);
+
+// Activity Timeline Chart - Mock data (in real implementation, pass this from Flask)
+const activityTimelineChart = new Chart(
+    document.getElementById('activityTimelineChart'),
+    {
+        type: 'line',
+        data: {
+            labels: ['Tuần 1', 'Tuần 2', 'Tuần 3', 'Tuần 4', 'Tuần 5'],
+            datasets: [
+                {
+                    label: 'Bài thi nghe',
+                    data: [12, 19, 15, 25, 22],
+                    borderColor: 'rgb(54, 162, 235)',
+                    backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                    tension: 0.1
+                },
+                {
+                    label: 'Bài thi nói',
+                    data: [8, 15, 12, 17, 19],
+                    borderColor: 'rgb(255, 99, 132)',
+                    backgroundColor: 'rgba(255, 99, 132, 0.5)',
+                    tension: 0.1
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                title: {
+                    display: true,
+                    text: 'Hoạt động học tập qua các tuần'
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Số lượt làm bài'
+                    }
+                },
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Thời gian'
+                    }
+                }
+            }
+        }
+    }
+);
+
+// Score Distribution Chart - Mock data (in real implementation, pass this from Flask)
+const scoreDistributionChart = new Chart(
+    document.getElementById('scoreDistributionChart'),
+    {
+        type: 'bar',
+        data: {
+            labels: ['0-1', '1-2', '2-3', '3-4', '4-5', '5-6', '6-7', '7-8', '8-9', '9-10'],
+            datasets: [
+                {
+                    label: 'Bài thi nghe',
+                    data: [0, 2, 5, 10, 15, 20, 25, 30, 15, 5],
+                    backgroundColor: 'rgba(54, 162, 235, 0.7)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    borderWidth: 1
+                },
+                {
+                    label: 'Bài thi nói',
+                    data: [1, 3, 7, 12, 18, 25, 20, 18, 10, 3],
+                    backgroundColor: 'rgba(255, 99, 132, 0.7)',
+                    borderColor: 'rgba(255, 99, 132, 1)',
+                    borderWidth: 1
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                title: {
+                    display: true,
+                    text: 'Phân phối điểm số học sinh'
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Số lượng học sinh'
+                    }
+                },
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Điểm số'
+                    }
+                }
+            }
+        }
+    }
+);
+</script>
+{% endblock %}

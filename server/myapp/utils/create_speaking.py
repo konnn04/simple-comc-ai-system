@@ -1,191 +1,317 @@
 import os
-# from myapp import tts, root_app
-from dotenv import load_dotenv
-load_dotenv()
-from google import genai
-client = genai.Client(api_key=os.getenv('GEMINI_API_KEY'))
-from enum import Enum
+import time
 import random
-from .tts import create_single_audio
+from pathlib import Path
+from google import genai
+from myapp import db, stt
+from myapp.tech.phonemizer import Phonemizer
+from myapp.utils.tts import create_single_audio
+from enum import Enum
+from myapp.utils.phoneme_matching import analyze_pronunciation
+from datetime import datetime
+from myapp.models import SpeakingExam, SpeakingResult
 
-class ExamType(Enum):
-    multiple_choice = 'multiple_choice'
-    fill_in_the_blank = 'fill_in_the_blank'
-    true_or_false = 'true_or_false'
+# Configure Gemini API
+client = genai.Client(api_key=os.getenv('GEMINI_API_KEY'))
+# model = genai.GenerativeModel('gemini-1.5-pro')
 
-subjects = [
-    'Traveling in Japan',
-    'The history of Vietnam',
-    'The activities at the University',
-    'The importance of learning English',
-    'Playing sports',
-    'The benefits of reading books',
-    'Traveling in Vietnam by motorbike',
+# Create phonemizer instance
+phonemizer = Phonemizer(language='en')
+
+# Initialize STT
+# stt = SileroSTT(language='en')
+
+# Default subjects if none provided
+DEFAULT_SUBJECTS = [
+    "Daily routines", 
+    "Family and friends", 
+    "Hobbies and interests",
+    "Travel experiences",
+    "Food and cuisine",
+    "Technology in daily life",
+    "Environmental issues",
+    "Education systems",
+    "Career development",
+    "Cultural differences"
 ]
 
 def get_random_subject():
-    return random.choice(subjects)
-    
-def singleSpeakingTest(
-        subject=get_random_subject(),
-        ratio_type={
-            ExamType.multiple_choice: 0.5,
-            ExamType.fill_in_the_blank: 0.3,
-            ExamType.true_or_false: 0.2
-        },
-        num_questions=10,
-        difficulty=1,
-        max_length=500,
-        model="gemini-2.0-flash"
-    ):
+    """Get a random subject for speaking exercises"""
+    return random.choice(DEFAULT_SUBJECTS)
+
+def generate_speaking_exercise(subject=None, difficulty=2, num_sentences=10):
     """
-    Generate a speaking test with passage and questions about a specific subject.
+    Generate speaking exercise sentences based on subject and difficulty
     
-    Parameters:
-        subject (str): Topic for the passage
-        ratio_type (dict): Dictionary with question type ratios
-        num_questions (int): Total number of questions to generate
-        difficulty (int): Difficulty level (0=basic, 1=normal, 2=hard, 3=native/TOEIC/IELTS)
-        max_length (int): Maximum length of the passage in words
+    Args:
+        subject (str): Topic for sentences. If None, a random topic is selected
+        difficulty (int): 0-3 where 0=very basic, 3=advanced
+        num_sentences (int): Number of sentences to generate
         
     Returns:
-        dict: JSON with text passage and questions
+        dict: Exercise data containing sentences and their details
     """
-    # Calculate number of questions for each type
-    question_counts = {}
-    remaining = num_questions
+    if not subject:
+        subject = get_random_subject()
     
-    for exam_type, ratio in ratio_type.items():
-        if exam_type == list(ratio_type.keys())[-1]:
-            # Last type gets all remaining questions
-            question_counts[exam_type] = remaining
-        else:
-            count = int(num_questions * ratio)
-            question_counts[exam_type] = count
-            remaining -= count
-    
-    # Define difficulty levels
+    # Define difficulty characteristics
     difficulty_levels = {
-        0: "basic level English suitable for beginners",
-        1: "intermediate level English",
-        2: "advanced level English",
-        3: "native speaker level, appropriate for TOEIC or IELTS preparation"
+        0: {
+            "description": "very basic English for beginners",
+            "words_range": "5-8 words per sentence, simple tenses only"
+        },
+        1: {
+            "description": "basic English",
+            "words_range": "8-12 words per sentence, simple vocabulary"
+        },
+        2: {
+            "description": "intermediate English",
+            "words_range": "12-18 words per sentence with some complex vocabulary"
+        },
+        3: {
+            "description": "advanced English",
+            "words_range": "18-25 words per sentence with complex structures and vocabulary"
+        }
     }
     
-    difficulty_description = difficulty_levels.get(difficulty, difficulty_levels[1])
+    difficulty_info = difficulty_levels.get(difficulty, difficulty_levels[2])
     
-    # Generate the passage using Gemini
+    # Generate speaking sentences using Gemini
+    prompt = f"""
+    Generate {num_sentences} natural English sentences about {subject}.
     
-    passage_prompt = f"""
-    Write an engaging passage in {difficulty_description} about {subject}.
-    The passage should be approximately {max_length} words in length.
-    Include enough specific details that can be used to create {num_questions} questions.
+    These should be {difficulty_info['description']} level sentences with {difficulty_info['words_range']}.
+    
+    Requirements:
+    - Sentences should be clear, natural and conversational
+    - Each sentence should be a complete thought
+    - For difficulty levels 2-3, include some idiomatic expressions
+    - For difficulty 0-1, use only common vocabulary
+    - Sentences should be appropriate for speaking practice
+    - Each sentence should be on a separate line
+    - Do not number the sentences
+    - For difficulty level {difficulty}, sentences can be {2-3 if difficulty >= 2 else 1} sentences maximum
+    
+    Return ONLY the sentences, one per line with no additional text.
     """
-    
-    print("Generating passage...")
-    passage_response = client.models.generate_content(
-        model = model,
-        contents=passage_prompt,
-    )
-    passage = passage_response.text.strip()
-    
-    # Generate questions based on the passage
-    questions_prompt = f"""
-    Based on the following passage about {subject}:
-    
-    {passage}
-    
-    Create {num_questions} questions with the following distribution:
-    - {question_counts.get(ExamType.multiple_choice, 0)} multiple-choice questions with 4 options (A, B, C, D)
-    - {question_counts.get(ExamType.fill_in_the_blank, 0)} fill-in-the-blank questions
-    - {question_counts.get(ExamType.true_or_false, 0)} true/false questions
-    
-    Format each question as a JSON object with these properties:
-    
-    For multiple-choice questions:
-    {{
-      "type": "multiple_choice",
-      "question": "<question text>",
-      "options": ["<option A>", "<option B>", "<option C>", "<option D>"],
-      "correct_answer": "<A, B, C or D>",
-      "explanation": "<explanation of why this answer is correct>"
-    }}
-    
-    For fill-in-the-blank questions:
-    {{
-      "type": "fill_in_the_blank",
-      "question": "<question text with _____ for blank>",
-      "correct_answer": "<word or phrase to fill in>",
-      "explanation": "<explanation of why this answer is correct>"
-    }}
-    
-    For true/false questions:
-    {{
-      "type": "true_or_false",
-      "question": "<question text>",
-      "correct_answer": <true or false>,
-      "explanation": "<explanation of why this answer is correct>"
-    }}
-    
-    IMPORTANT: 
-    - For multiple-choice questions, correct_answer must be a letter (A, B, C, or D), not a number.
-    - Make questions progressively challenging based on difficulty level {difficulty}.
-    - Return all questions as a JSON array.
-    """
-    
-    print("Generating questions...")
-    questions_response = client.models.generate_content(
-        model = model,
-        contents=questions_prompt,
-    )
     
     try:
-        # Extract JSON array from the response
-        import json
-        import re
+        response = client.models.generate_content(contents=prompt, model='gemini-1.5-pro')
         
-        # Find the JSON array in the response
-        response_text = questions_response.text
-        json_match = re.search(r'\[\s*{.*}\s*\]', response_text, re.DOTALL)
+        sentences = [s.strip() for s in response.text.strip().split('\n')]
+        # Filter out any empty sentences and limit to requested number
+        print(sentences)
+        sentences = [s for s in sentences if s][:num_sentences]
         
-        if json_match:
-            questions_json = json_match.group(0)
-            questions = json.loads(questions_json)
-        else:
-            # Try parsing the entire response as JSON
-            questions = json.loads(response_text)
+        # Process sentences to create exercise items
+        exercise_items = []
+        for sentence in sentences:
+            # Generate phonemes for the sentence
+            phonemes = phonemizer.phonemize_text(sentence)
             
-            # If the result is not a list, look for questions inside
-            if not isinstance(questions, list):
-                questions = questions.get('questions', [])
-    except Exception as e:
-        print(f"Error parsing questions: {str(e)}")
-        questions = []
-    
-    # Return the speaking test
-    return {
-        'text': passage,
-        'questions': questions
-    }
+            # Generate audio for the sentence
+            audio_result = create_single_audio(text=sentence, voice='af_heart')
+            audio_path = f"/static/tts/{audio_result['filename']}"
+            
+            exercise_items.append({
+                'text': sentence,
+                'phonemes': phonemes,
+                'audio': audio_path
+            })
+            
 
+
+        return {
+            'subject': subject,
+            'difficulty': difficulty,
+            'items': exercise_items
+        }
+        
+    except Exception as e:
+        print(f"Error generating speaking exercise: {e}")
+        return None
+
+def evaluate_speaking_recording(temp_path, expected_text, expected_phonemes):
+    """Evaluates a speaking recording."""
+    try:
+        stt_result = stt.process_audio_file(temp_path)
+
+        if 'error' in stt_result:
+            return {'error': f"STT error: {stt_result['error']}"}
+
+        result_input = {
+            'text': stt_result['text'],
+        }
+        expected_input = {
+            'text': expected_text,
+        }
+
+        analysis_results = analyze_pronunciation(expected_input, result_input, language='en')
+
+        return {
+            'accuracy_score': analysis_results['accuracy_score'],
+            'word_level_analysis': analysis_results['word_level_analysis'],
+            'overall_errors': analysis_results['overall_errors'],
+            'result_text': stt_result['text'],  # Corrected key
+            'result_phonemes': stt_result.get('phonemes', ''),  # STT might not provide
+            'expected_text': expected_text,
+            'expected_phonemes': expected_phonemes,
+            'message': "Analysis complete"
+        }
+
+    except Exception as e:
+        return {
+            'accuracy_score': 0,
+            'word_level_analysis': [],
+            'overall_errors': [],
+            'error': str(e)
+        }
+
+def save_speaking_exam_to_db(user_id, subject, difficulty, items, is_ai=True, is_public=True, score=10.0):
+    """
+    Save a speaking exercise to the database
+    
+    Args:
+        user_id (int): ID of the teacher creating the exam
+        subject (str): Topic of the speaking exercise
+        difficulty (int): Difficulty level (0-3)
+        items (list): List of items containing text, phonemes, and audio paths
+        is_ai (bool): Whether the exam was generated by AI
+        is_public (bool): Whether the exam is public
+        score (float): Maximum score for the exam
+    
+    Returns:
+        dict: Result containing exam_id and status
+    """
+    try:
+        # Create the exam record
+        speaking_exam = SpeakingExam(
+            user_id=user_id,
+            score=score,
+            subject=subject,
+            difficulty=difficulty,
+            is_ai=is_ai,
+            is_public=is_public,
+            created_at=datetime.datetime.now()
+        )
+        db.session.add(speaking_exam)
+        db.session.flush()  # Get exam ID without committing transaction
+        
+        # Create result records for each item
+        for item in items:
+            result = SpeakingResult(
+                speaking_exam_id=speaking_exam.id,
+                text=item['text'],
+                phonemes=item['phonemes'],
+                audio_path=item['audio']
+                # Other fields (user_audio_path, recognized_text, confidence, emotion)
+                # will be populated when a user takes the exam
+            )
+            db.session.add(result)
+        
+        db.session.commit()
+        return {'success': True, 'exam_id': speaking_exam.id}
+    except Exception as e:
+        db.session.rollback()
+        return {'success': False, 'error': str(e)}
+    
 def create_speaking_test(
-        subject, num_questions=10, 
-        ratio_type = {
-            ExamType.multiple_choice: 0.5,
-            ExamType.fill_in_the_blank: 0.3,
-            ExamType.true_or_false: 0.2
-        },
-        difficulty=1,
-        max_length=200,
-        speed=1.0,
-        split_pattern=r'\n+'
+        user_id=1,  # Teacher ID
+        subject=None,
+        num_sentences=10,
+        difficulty=2,
+        save_to_db=True  # Whether to save to database
     ):
-    exam = singleSpeakingTest(subject, ratio_type, num_questions, difficulty, max_length)
-    print("Exam generated successfully. Creating audio...")
-    audio = create_single_audio(exam['text'], 'af_heart', speed, split_pattern)
-    print("Audio created successfully.")
-    return {
-        'text': exam['text'],
-        'questions': exam['questions'],
-        'audio': audio
+    """Generate a speaking test with AI and optionally save to database
+    
+    Args:
+        user_id (int): ID of the teacher creating the exam
+        subject (str): Topic for the speaking exercise
+        num_sentences (int): Number of sentences to generate
+        difficulty (int): Difficulty level (0-3)
+        save_to_db (bool): Whether to save to database
+        
+    Returns:
+        dict: The generated speaking test with exam_id if saved to database
+    """
+    # Generate the speaking exercise
+    exercise = generate_speaking_exercise(
+        subject=subject,
+        difficulty=difficulty,
+        num_sentences=num_sentences
+    )
+    
+    if not exercise:
+        return {'success': False, 'error': 'Failed to generate speaking exercise'}
+    
+    # Save to database if requested
+    exam_id = None
+    if save_to_db:
+        result = save_speaking_exam_to_db(
+            user_id=user_id,
+            subject=exercise['subject'],
+            difficulty=exercise['difficulty'],
+            items=exercise['items'],
+            is_ai=True,
+            is_public=True,
+            score=10.0
+        )
+        
+        if result['success']:
+            exam_id = result['exam_id']
+    
+    # Return the generated exercise along with the database ID if saved
+    result = {
+        'subject': exercise['subject'],
+        'difficulty': exercise['difficulty'],
+        'items': exercise['items']
     }
+    
+    if exam_id:
+        result['exam_id'] = exam_id
+        
+    return result
+
+def get_speaking_exam_by_id(exam_id):
+    """
+    Get a speaking exam from the database by ID
+    
+    Args:
+        exam_id (int): ID of the speaking exam to retrieve
+        
+    Returns:
+        dict: Speaking exam data with items
+    """
+    try:
+        # Get the exam record
+        exam = SpeakingExam.query.get(exam_id)
+        if not exam:
+            return {'success': False, 'error': 'Speaking exam not found'}
+        
+        # Get all results for this exam
+        results = SpeakingResult.query.filter_by(speaking_exam_id=exam_id).all()
+        
+        # Build the exam data structure
+        items = []
+        for result in results:
+            items.append({
+                'id': result.id,
+                'text': result.text,
+                'phonemes': result.phonemes,
+                'audio': result.audio_path
+            })
+        
+        return {
+            'success': True,
+            'exam_id': exam.id,
+            'user_id': exam.user_id,
+            'subject': exam.subject,
+            'difficulty': exam.difficulty,
+            'score': exam.score,
+            'is_ai': exam.is_ai,
+            'is_public': exam.is_public,
+            'created_at': exam.created_at.isoformat() if exam.created_at else None,
+            'items': items
+        }
+    except Exception as e:
+        return {'success': False, 'error': str(e)}

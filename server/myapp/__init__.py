@@ -1,3 +1,7 @@
+# Initialize route store
+import os
+root_app = os.path.dirname(os.path.abspath(__file__))
+
 from flask import Flask
 from flask_admin import Admin
 from flask_sqlalchemy import SQLAlchemy
@@ -7,14 +11,27 @@ from myapp.constants.routes import route_store
 from flask_login import LoginManager, UserMixin, login_user, logout_user, current_user, login_required
 from dotenv import load_dotenv
 from myapp.tech.tts import KokoroTTS
-import os
+from myapp.tech.vosk_stt import STT
+# from myapp.tech.silero_stt import SileroSTT
 
+import cloudinary
+
+# Initialize TTS
 tts = KokoroTTS()
+stt = STT()
 
-root_app = os.path.dirname(os.path.abspath(__file__))
-
+# Load environment variables
 load_dotenv()
 
+# Initialize Cloudinary
+cloudinary.config( 
+    cloud_name = os.getenv('CLOUDINARY_CLOUD_NAME'),
+    api_key = os.getenv('CLOUDINARY_API_KEY'),
+    api_secret = os.getenv('CLOUDINARY_API_SECRET'),
+    secure=True
+)
+
+# Initialize Flask extensions
 db = SQLAlchemy()
 admin = Admin(name='Admin', template_mode='bootstrap3')
 login_manager = LoginManager()
@@ -54,17 +71,18 @@ def create_app(config_class=Config):
         return original_blueprint_route(self, rule, **options)
     Blueprint.route = custom_blueprint_route
 
-
+    from myapp.adm.routes import adm
     from myapp.main.routes import main
-    from myapp.adm import adm
     from myapp.auth.routes import auth
+    from myapp.teacher.routes import teacher
     
     app.register_blueprint(main)
     app.register_blueprint(adm)
     app.register_blueprint(auth)
+    app.register_blueprint(teacher)
 
     return app
-
+ 
 
 
 

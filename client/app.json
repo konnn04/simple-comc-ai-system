@@ -1,28 +1,31 @@
 {
   "expo": {
-    "name": "my-english-app",
-    "slug": "my-english-app",
+    "name": "RTalk English",
+    "slug": "rtalk-english",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
-    "newArchEnabled": true,
     "splash": {
       "image": "./assets/splash-icon.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
-    "ios": {
-      "supportsTablet": true
-    },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.riikon.rtalkenglish",
+      "versionCode": 1
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "592c6dd0-063e-49ee-9a06-f58d80ac3ba7"
+      }
     }
   }
 }

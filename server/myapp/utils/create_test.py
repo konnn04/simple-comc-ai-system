@@ -1,7 +1,8 @@
-import os
 from dotenv import load_dotenv
 load_dotenv()
 from google import genai
+import os
+
 client = genai.Client(api_key=os.getenv('GEMINI_API_KEY'))
 
 def create_english_question_prompt(question_type, topic, difficulty, subject=None, num_questions=5):
@@ -123,14 +124,14 @@ Return the results in JSON format with the following structure:
     {{
       "question": "Question content",
       "options": ["Option A content", "Option B content", "Option C content", "Option D content"], # Only for multiple choice
-      "correct_answer": "Correct answer. (0 for A, 1 for B, 2 for C, 3 for D)", # Only for multiple choice
+      "correct_answer": "Correct answer",
       "explanation": "Detailed explanation of why this answer is correct and others are wrong"
     }}
     # Additional questions...
   ]
 }}
 
-Note: correct_answer must be the index of the correct option (must is number, not string) in options (0 for A, 1 for B, 2 for C, 3 for D), not the content of the answer. All content must be in English, except for "explanation" and specific terms or names that are not translatable. Do not include any personal information or copyrighted content.
+Note: correct_answer must be the index of the correct option (must is number) in options (0 for A, 1 for B, 2 for C, 3 for D), not the content of the answer.
 """
     
     return prompt
@@ -322,7 +323,7 @@ if __name__ == "__main__":
         topics=['grammar', 'vocabulary'],
         difficulties=['basic'],
         subjects=['travel', 'technology','games','vietnam', 'trends', 'social_media','Stories about IT students at Ho Chi Minh City Open University','Vietnamese social media topics'],
-        num_questions=100
+        num_questions=30
     )
     
     # Save results to JSON file
