@@ -11,6 +11,11 @@ from myapp.dao.speaking import save_speaking_exercise
 from myapp.utils.create_speaking import create_speaking_test, evaluate_speaking_recording
 import os
 import time
+from myapp.utils.qaa import evaluate_speech_response, generate_speaking_feedback, save_speaking_evaluation
+import tempfile
+import logging
+from myapp.utils.communicationAI import start_conversation, process_audio_message, send_text_message, get_conversation_history, get_suggested_topics
+
 
 main = Blueprint('main', __name__)
 
@@ -330,6 +335,444 @@ def update_avatar(current_user_id):
         print(e)
         return jsonify({'message': f'Error uploading avatar: {str(e)}'}), 500
 
+# Speaking practice
+@main.route('/api/speaking-practice/evaluate', methods=['POST'])
+@token_required
+def evaluate_speaking_answer(current_user_id):
+    """
+    API to evaluate a user's spoken response to a question
+    
+    Expected data:
+    - audio: Audio file of user's response
+    - question: The question being answered
+    - difficulty: Difficulty level (0-2)
+    
+    Returns:
+    - Detailed evaluation of speaking
+    """
+    try:
+        # Get form data
+        question = request.form.get('question')
+        difficulty = int(request.form.get('difficulty', 1))
+        
+        # Check audio file
+        if 'audio' not in request.files:
+            return jsonify({
+                'success': False,
+                'error': 'No audio file provided'
+            }), 400
+            
+        audio_file = request.files['audio']
+        if audio_file.filename == '':
+            return jsonify({
+                'success': False, 
+                'error': 'Empty file'
+            }), 400
+            
+        # Save audio file temporarily
+        with tempfile.NamedTemporaryFile(delete=False, suffix='.wav') as temp_audio:
+            audio_file.save(temp_audio.name)
+            temp_audio_path = temp_audio.name
+        
+        try:
+            # Evaluate the speech
+            evaluation_result = evaluate_speech_response(
+                question_text=question,
+                difficulty_level=difficulty,
+                audio_path=temp_audio_path
+            )
+            
+            # Generate audio feedback if evaluation was successful
+            if evaluation_result.get('success', False):
+                feedback = generate_speaking_feedback(evaluation_result)
+                if feedback:
+                    evaluation_result['feedback'] = feedback
+                
+                # Save evaluation to database
+                save_result = save_speaking_evaluation(
+                    user_id=current_user_id,
+                    question_text=question,
+                    answer_text=evaluation_result['evaluation']['recognized_text'],
+                    evaluation_result=evaluation_result['evaluation']
+                )
+                
+                if save_result.get('success', False):
+                    evaluation_result['evaluation_id'] = save_result['evaluation_id']
+            
+            # Delete temporary file after processing
+            if os.path.exists(temp_audio_path):
+                os.unlink(temp_audio_path)
+                
+            return jsonify(evaluation_result)
+            
+        finally:
+            # Ensure temporary file is deleted
+            if os.path.exists(temp_audio_path):
+                os.unlink(temp_audio_path)
+                
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+
+@main.route('/api/speaking-questions/generate', methods=['POST'])
+@token_required
+def generate_speaking_practice_questions(current_user_id):
+    """
+    Generate speaking practice questions based on topic and difficulty
+    
+    Expected POST data:
+    {
+        "topic": "Topic for questions",
+        "difficulty": 0-2,
+        "count": 10
+    }
+    
+    Returns:
+    - Generated questions that are saved to database
+    """
+    try:
+        data = request.get_json()
+        
+        if not data:
+            return jsonify({'success': False, 'error': 'No data provided'}), 400
+            
+        topic = data.get('topic', 'general conversation')
+        difficulty = int(data.get('difficulty', 1))
+        count = int(data.get('count', 10))
+        
+        if count > 30:  # Limit to reasonable number
+            count = 30
+        
+        # Generate questions
+        from myapp.utils.qaa import generate_speaking_questions, save_speaking_questions_to_db
+        
+        result = generate_speaking_questions(topic, difficulty, count)
+        
+        if not result['success']:
+            return jsonify(result), 500
+        
+        # Save to database
+        save_result = save_speaking_questions_to_db(result['questions'], current_user_id)
+        
+        if not save_result['success']:
+            return jsonify(save_result), 500
+        
+        return jsonify({
+            'success': True,
+            'questions': result['questions'],
+            'question_ids': save_result['question_ids']
+        }), 201
+        
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+@main.route('/api/speaking-questions/random', methods=['GET'])
+@token_required
+def get_random_speaking_practice_questions(current_user_id):
+    """
+    Get random speaking practice questions
+    
+    Query parameters:
+    - topic (optional): Filter by topic
+    - difficulty (optional): Filter by difficulty level (0-2)
+    - count (optional): Number of questions to retrieve (default: 5)
+    
+    Returns:
+    - List of random speaking questions
+    """
+    try:
+        topic = request.args.get('topic')
+        difficulty = request.args.get('difficulty')
+        count = int(request.args.get('count', 5))
+        
+        if difficulty:
+            difficulty = int(difficulty)
+        
+        if count > 30:  # Limit to reasonable number
+            count = 30
+        
+        # Get random questions
+        from myapp.utils.qaa import get_random_speaking_questions
+        
+        result = get_random_speaking_questions(topic, difficulty, count)
+        
+        if not result['success']:
+            return jsonify(result), 500
+        
+        return jsonify(result), 200
+        
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+    
+
+# Add to e:\code\NCKH_2425\server\myapp\main\routes.py
+
+@main.route('/api/conversation/start', methods=['POST'])
+@token_required
+def start_conversation_api(current_user_id):
+    """
+    Start a new topic-based English conversation
+    
+    Expected JSON:
+    {
+        "topic": "travel in Vietnam",
+        "voice": "default" (optional)
+    }
+    
+    Returns:
+        Greeting message with audio and session ID
+    """
+    try:
+        data = request.get_json()
+        
+        if not data or not data.get('topic'):
+            return jsonify({
+                'success': False,
+                'error': 'Topic is required'
+            }), 400
+            
+        topic = data.get('topic')
+        voice = data.get('voice', 'default')
+        
+        # Start conversation
+        from myapp.utils.communicationAI import start_conversation
+        result = start_conversation(topic, voice)
+        
+        if not result.get('success', False):
+            return jsonify(result), 500
+            
+        # Track session for user
+        user_key = f"user_{current_user_id}_sessions"
+        if user_key not in tmp_session:
+            tmp_session[user_key] = []
+            
+        tmp_session[user_key].append(result['session_id'])
+        
+        # Keep only 5 most recent sessions per user
+        if len(tmp_session[user_key]) > 5:
+            tmp_session[user_key] = tmp_session[user_key][-5:]
+        
+        return jsonify(result)
+        
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+@main.route('/api/conversation/send-audio', methods=['POST'])
+@token_required
+def send_audio_message_api(current_user_id):
+    """
+    Send audio message in conversation
+    
+    Expected form data:
+    - audio: Audio file (user's spoken message)
+    - session_id: Existing session ID (optional)
+    - topic: Topic for new conversation if session_id not provided
+    - voice: Voice preference (optional)
+    
+    Returns:
+        AI response as text and audio
+    """
+    try:
+        # Get parameters
+        session_id = request.form.get('session_id')
+        topic = request.form.get('topic')
+        voice = request.form.get('voice', 'default')
+        
+        # Check if either session_id or topic is provided
+        if not session_id and not topic:
+            return jsonify({
+                'success': False, 
+                'error': 'Either session_id or topic is required'
+            }), 400
+            
+        # Check audio file
+        if 'audio' not in request.files:
+            return jsonify({
+                'success': False,
+                'error': 'No audio file provided'
+            }), 400
+            
+        audio_file = request.files['audio']
+        if audio_file.filename == '':
+            return jsonify({
+                'success': False,
+                'error': 'Empty audio file'
+            }), 400
+            
+        # Save audio to temporary file
+        with tempfile.NamedTemporaryFile(delete=False, suffix='.wav') as temp_audio:
+            audio_file.save(temp_audio.name)
+            temp_audio_path = temp_audio.name
+        
+        try:
+            # Process audio message
+            from myapp.utils.communicationAI import process_audio_message
+            result = process_audio_message(
+                audio_path=temp_audio_path,
+                session_id=session_id,
+                topic=topic,
+                voice=voice
+            )
+            
+            # Track new session for user
+            if result.get('success', False) and result.get('is_new_session', False):
+                user_key = f"user_{current_user_id}_sessions"
+                if user_key not in tmp_session:
+                    tmp_session[user_key] = []
+                
+                new_session_id = result.get('session_id') 
+                if new_session_id not in tmp_session[user_key]:
+                    tmp_session[user_key].append(new_session_id)
+                
+                # Keep only 5 most recent sessions
+                if len(tmp_session[user_key]) > 5:
+                    tmp_session[user_key] = tmp_session[user_key][-5:]
+            
+            # Delete temporary file after processing
+            if os.path.exists(temp_audio_path):
+                os.unlink(temp_audio_path)
+                
+            return jsonify(result)
+            
+        finally:
+            # Ensure temporary file is deleted
+            if os.path.exists(temp_audio_path):
+                os.unlink(temp_audio_path)
+                
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+@main.route('/api/conversation/send-text', methods=['POST'])
+@token_required
+def send_text_message_api(current_user_id):
+    """
+    Send text message in conversation
+    
+    Expected JSON:
+    {
+        "text": "User's message text",
+        "session_id": "Existing session ID"
+    }
+    
+    Returns:
+        AI response as text and audio
+    """
+    try:
+        data = request.get_json()
+        
+        if not data or not data.get('text') or not data.get('session_id'):
+            return jsonify({
+                'success': False,
+                'error': 'Text message and session_id are required'
+            }), 400
+            
+        text = data.get('text')
+        session_id = data.get('session_id')
+        
+        # Verify session belongs to user
+        user_key = f"user_{current_user_id}_sessions"
+        if user_key in tmp_session and session_id not in tmp_session[user_key]:
+            return jsonify({
+                'success': False,
+                'error': 'Invalid session ID'
+            }), 403
+            
+        # Process text message
+        from myapp.utils.communicationAI import send_text_message
+        result = send_text_message(text, session_id)
+        
+        return jsonify(result)
+        
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+@main.route('/api/conversation/history', methods=['GET'])
+@token_required
+def conversation_history_api(current_user_id):
+    """
+    Get conversation history
+    
+    Query parameters:
+    - session_id: ID of the conversation session
+    
+    Returns:
+        Conversation history
+    """
+    try:
+        session_id = request.args.get('session_id')
+        
+        if not session_id:
+            return jsonify({
+                'success': False,
+                'error': 'session_id is required'
+            }), 400
+            
+        # Verify session belongs to user
+        user_key = f"user_{current_user_id}_sessions"
+        if user_key in tmp_session and session_id not in tmp_session[user_key]:
+            return jsonify({
+                'success': False,
+                'error': 'Invalid session ID'
+            }), 403
+            
+        # Get conversation history
+        from myapp.utils.communicationAI import get_conversation_history
+        result = get_conversation_history(session_id)
+        
+        return jsonify(result)
+        
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+@main.route('/api/conversation/topics/suggest', methods=['GET'])
+@token_required
+def suggest_conversation_topics_api(current_user_id):
+    """
+    Get suggested conversation topics
+    
+    Query parameters:
+    - level: Language level (beginner, intermediate, advanced)
+    - count: Number of topics to return (default: 10)
+    
+    Returns:
+        List of suggested topics
+    """
+    try:
+        level = request.args.get('level', 'intermediate')
+        count = min(int(request.args.get('count', 10)), 30)
+        
+        # Get suggested topics
+        from myapp.utils.communicationAI import get_suggested_topics
+        result = get_suggested_topics(level, count)
+        
+        return jsonify(result)
+        
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
 # 404
 @main.app_errorhandler(404)
 def page_not_found(e):

@@ -161,7 +161,28 @@ class CommentCourse(db.Model):
     content = db.Column(db.Text, nullable=False)
     created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
 
+# Add this model if not already present
+class SpeakingEvaluation(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    question = db.Column(db.Text, nullable=False)
+    answer = db.Column(db.Text, nullable=False)
+    score = db.Column(db.Float, nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.now)
+    
+    user = db.relationship('User', backref=db.backref('speaking_evaluations', lazy=True))
 
+# Add to models.py
+class SpeakingQuestion(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    question_text = db.Column(db.Text, nullable=False)
+    topic = db.Column(db.String(100), nullable=False)
+    difficulty = db.Column(db.Integer, nullable=False)  # 0=beginner, 1=intermediate, 2=advanced
+    generated_by = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.now)
+    
+    # Relationship with user who generated the question
+    user = db.relationship('User', backref='speaking_questions')
 
 @login_manager.user_loader
 def load_user(user_id):

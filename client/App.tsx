@@ -19,6 +19,9 @@ import SetUpSpeakingExercise from './components/SpeakingExam/SetUpSpeakingExerci
 import SpeakingExamResults from './components/SpeakingExam/ExamResults';
 import SpeakingExerciseTest from './components/SpeakingExam/ExamTest';
 
+import ListQuestionsScreen from './components/AnswerSpeakingQuestion/ListQuestion';
+import SpeakingPractice from './components/AnswerSpeakingQuestion/AnswerQuestion';
+
 import { SafeAreaProvider, SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 const Stack = createNativeStackNavigator();
 export default function App() {
@@ -74,8 +77,8 @@ export default function App() {
               name="SetUpSubjectAndType"
               component={SetUpSubjectAndType}
               options={{
-                headerTitle: 'Speaking Exam Setup',
-                headerShown: true
+                headerTitle: 'Listening Exam Setup',
+                headerShown: false
               }}
             />
             <Stack.Screen
@@ -108,7 +111,7 @@ export default function App() {
               component={SetUpSpeakingExercise}
               options={{ 
                 headerTitle: 'Speaking Exercise Setup',
-                headerShown: true
+                headerShown: false
               }}
             />
 
@@ -130,7 +133,23 @@ export default function App() {
               }}
             />
 
+            <Stack.Screen
+              name="ListQuestionsScreen"
+              component={ListQuestionsScreen}
+              options={{
+                headerTitle: 'Speaking Questions',
+                headerShown: true
+              }}
+            />
 
+            <Stack.Screen
+              name="SpeakingPractice"
+              component={SpeakingPractice}
+              options={{
+                headerTitle: 'Answer Speaking Question',
+                headerShown: false
+              }}
+            />
           </Stack.Navigator>
           <StatusBar style="auto" />
         </NavigationContainer>

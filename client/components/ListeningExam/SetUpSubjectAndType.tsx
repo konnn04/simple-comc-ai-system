@@ -7,13 +7,19 @@ import {
   TextInput, 
   Alert,
   ScrollView,
-  Platform
+  Platform,
+  Dimensions
 } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
+import { Ionicons, MaterialIcons, FontAwesome5 } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
+import Animated, { FadeInDown } from 'react-native-reanimated';
 
 interface SetUpSubjectAndTypeProps {
   navigation: any;
 }
+
+const { width } = Dimensions.get('window');
 
 export default function SetUpSubjectAndType({ navigation }: SetUpSubjectAndTypeProps) {
   const [subjectType, setSubjectType] = useState('predefined');
@@ -50,131 +56,229 @@ export default function SetUpSubjectAndType({ navigation }: SetUpSubjectAndTypeP
     });
   };
 
+  const renderSubjectSelector = () => {
+    if (subjectType === 'predefined') {
+      return (
+        <Animated.View entering={FadeInDown.delay(100)} style={styles.formGroup}>
+          <Text style={styles.label}>Select Subject</Text>
+          <View style={styles.pickerContainer}>
+            {Platform.OS === 'android' ? (
+              <View style={styles.pickerWithIcon}>
+                <MaterialIcons name="category" size={22} color="#6979F8" style={styles.inputIcon} />
+                <Picker
+                  selectedValue={selectedSubject}
+                  onValueChange={(value) => setSelectedSubject(value as string)}
+                  style={styles.pickerAndroid}
+                  dropdownIconColor="#6979F8"
+                >
+                  {predefinedSubjects.map((subject, index) => (
+                    <Picker.Item key={index} label={subject} value={subject} />
+                  ))}
+                </Picker>
+              </View>
+            ) : (
+              <View style={styles.pickerWithIcon}>
+                <MaterialIcons name="category" size={22} color="#6979F8" style={styles.inputIcon} />
+                <Picker
+                  selectedValue={selectedSubject}
+                  onValueChange={(value) => setSelectedSubject(value as string)}
+                  style={styles.pickerIOS}
+                  itemStyle={styles.pickerItemIOS}
+                >
+                  {predefinedSubjects.map((subject, index) => (
+                    <Picker.Item key={index} label={subject} value={subject} />
+                  ))}
+                </Picker>
+              </View>
+            )}
+          </View>
+        </Animated.View>
+      );
+    } else {
+      return (
+        <Animated.View entering={FadeInDown.delay(100)} style={styles.formGroup}>
+          <Text style={styles.label}>Enter Custom Subject</Text>
+          <View style={styles.inputContainer}>
+            <Ionicons name="create-outline" size={22} color="#6979F8" style={styles.inputIcon} />
+            <TextInput
+              style={styles.textInput}
+              value={customSubject}
+              onChangeText={handleCustomSubjectChange}
+              maxLength={50}
+              placeholder="Type your subject here"
+              placeholderTextColor="#A0A0A0"
+            />
+          </View>
+          <Text style={[
+            styles.helperText,
+            customSubject.length >= 50 && styles.errorText
+          ]}>
+            {`${customSubject.length}/50 characters`}
+          </Text>
+        </Animated.View>
+      );
+    }
+  };
+
   return (
     <ScrollView style={styles.container}>
-      <View style={styles.content}>
-        <View style={styles.headerContainer}>
-          <Text style={styles.headerText}>Listening Exam Setup</Text>
+      <LinearGradient
+        colors={['#6979F8', '#A5AFFB']}
+        style={styles.header}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+      >
+        <TouchableOpacity 
+          style={styles.backButton}
+          onPress={() => navigation.goBack()}
+        >
+          <Ionicons name="arrow-back" size={24} color="#FFF" />
+        </TouchableOpacity>
+        <Text style={styles.headerText}>Listening Exam</Text>
+        <View style={styles.headerIcon}>
+          <Ionicons name="headset" size={24} color="#FFF" />
         </View>
-        
-        <View style={styles.formSection}>
-          <Text style={styles.sectionTitle}>Subject Selection</Text>
+      </LinearGradient>
+      
+      <View style={styles.content}>
+        <Animated.View 
+          entering={FadeInDown.delay(50)}
+          style={styles.formSection}
+        >
+          <View style={styles.sectionHeader}>
+            <MaterialIcons name="subject" size={24} color="#6979F8" />
+            <Text style={styles.sectionTitle}>Subject Selection</Text>
+          </View>
           
-          <View style={styles.radioGroup}>
+          <View style={styles.toggleContainer}>
             <TouchableOpacity
-              style={styles.radioOption}
+              style={[
+                styles.toggleOption,
+                subjectType === 'predefined' && styles.toggleSelected
+              ]}
               onPress={() => setSubjectType('predefined')}
             >
-              <View style={[
-                styles.radioButton, 
-                subjectType === 'predefined' && styles.radioButtonSelected
+              <MaterialIcons 
+                name="list" 
+                size={22} 
+                color={subjectType === 'predefined' ? "#FFF" : "#6979F8"} 
+              />
+              <Text style={[
+                styles.toggleText,
+                subjectType === 'predefined' && styles.toggleTextSelected
               ]}>
-                {subjectType === 'predefined' && <View style={styles.radioButtonInner} />}
-              </View>
-              <Text style={styles.radioLabel}>Choose from list</Text>
+                Predefined
+              </Text>
             </TouchableOpacity>
             
             <TouchableOpacity
-              style={styles.radioOption}
+              style={[
+                styles.toggleOption,
+                subjectType === 'custom' && styles.toggleSelected
+              ]}
               onPress={() => setSubjectType('custom')}
             >
-              <View style={[
-                styles.radioButton, 
-                subjectType === 'custom' && styles.radioButtonSelected
+              <Ionicons 
+                name="create" 
+                size={22} 
+                color={subjectType === 'custom' ? "#FFF" : "#6979F8"} 
+              />
+              <Text style={[
+                styles.toggleText,
+                subjectType === 'custom' && styles.toggleTextSelected
               ]}>
-                {subjectType === 'custom' && <View style={styles.radioButtonInner} />}
-              </View>
-              <Text style={styles.radioLabel}>Custom subject</Text>
+                Custom
+              </Text>
             </TouchableOpacity>
           </View>
           
-          {subjectType === 'predefined' ? (
-            <View style={styles.formGroup}>
-              <Text style={styles.label}>Select Subject</Text>
-              <View style={styles.pickerContainer}>
-                {Platform.OS === 'android' ? (
-                  <Picker
-                    selectedValue={selectedSubject}
-                    onValueChange={(value) => setSelectedSubject(value as string)}
-                    style={styles.picker}
-                  >
-                    {predefinedSubjects.map((subject, index) => (
-                      <Picker.Item key={index} label={subject} value={subject} />
-                    ))}
-                  </Picker>
-                ) : (
-                  // iOS picker styling
-                  <Picker
-                    selectedValue={selectedSubject}
-                    onValueChange={(value) => setSelectedSubject(value as string)}
-                    style={styles.pickerIOS}
-                    itemStyle={styles.pickerItemIOS}
-                  >
-                    {predefinedSubjects.map((subject, index) => (
-                      <Picker.Item key={index} label={subject} value={subject} />
-                    ))}
-                  </Picker>
-                )}
-              </View>
-            </View>
-          ) : (
-            <View style={styles.formGroup}>
-              <Text style={styles.label}>Enter Custom Subject</Text>
-              <TextInput
-                style={styles.textInput}
-                value={customSubject}
-                onChangeText={handleCustomSubjectChange}
-                maxLength={50}
-                placeholder="Type your subject here"
-              />
-              <Text style={[
-                styles.helperText,
-                customSubject.length >= 50 && styles.errorText
-              ]}>
-                {`${customSubject.length}/50 characters`}
-              </Text>
-            </View>
-          )}
-        </View>
+          {renderSubjectSelector()}
+        </Animated.View>
         
-        <View style={styles.formSection}>
-          <Text style={styles.sectionTitle}>Exam Type</Text>
+        <Animated.View 
+          entering={FadeInDown.delay(150)}
+          style={styles.formSection}
+        >
+          <View style={styles.sectionHeader}>
+            <FontAwesome5 name="file-audio" size={22} color="#6979F8" />
+            <Text style={styles.sectionTitle}>Exam Type</Text>
+          </View>
           
-          <View style={styles.radioGroup}>
+          <View style={styles.examTypeContainer}>
             <TouchableOpacity
-              style={styles.radioOption}
+              style={[
+                styles.examTypeCard,
+                examType === 'single' && styles.examTypeSelected
+              ]}
               onPress={() => setExamType('single')}
             >
               <View style={[
-                styles.radioButton, 
-                examType === 'single' && styles.radioButtonSelected
+                styles.examTypeIconContainer,
+                examType === 'single' && styles.examTypeIconSelected
               ]}>
-                {examType === 'single' && <View style={styles.radioButtonInner} />}
+                <Ionicons 
+                  name="person" 
+                  size={28} 
+                  color={examType === 'single' ? "#6979F8" : "#A0A0A0"} 
+                />
               </View>
-              <Text style={styles.radioLabel}>Single Speech</Text>
+              <Text style={[
+                styles.examTypeTitle,
+                examType === 'single' && styles.examTypeTitleSelected
+              ]}>
+                Single Speech
+              </Text>
+              <Text style={styles.examTypeDescription}>
+                One person speaking about a topic
+              </Text>
             </TouchableOpacity>
             
             <TouchableOpacity
-              style={styles.radioOption}
+              style={[
+                styles.examTypeCard,
+                examType === 'conversation' && styles.examTypeSelected
+              ]}
               onPress={() => setExamType('conversation')}
             >
               <View style={[
-                styles.radioButton, 
-                examType === 'conversation' && styles.radioButtonSelected
+                styles.examTypeIconContainer,
+                examType === 'conversation' && styles.examTypeIconSelected
               ]}>
-                {examType === 'conversation' && <View style={styles.radioButtonInner} />}
+                <Ionicons 
+                  name="people" 
+                  size={28} 
+                  color={examType === 'conversation' ? "#6979F8" : "#A0A0A0"} 
+                />
               </View>
-              <Text style={styles.radioLabel}>Conversation</Text>
+              <Text style={[
+                styles.examTypeTitle,
+                examType === 'conversation' && styles.examTypeTitleSelected
+              ]}>
+                Conversation
+              </Text>
+              <Text style={styles.examTypeDescription}>
+                Multiple people in a dialog
+              </Text>
             </TouchableOpacity>
           </View>
-        </View>
+        </Animated.View>
         
-        <TouchableOpacity
-          style={styles.startButton}
-          onPress={handleStartExam}
-        >
-          <Text style={styles.startButtonText}>Start Exam</Text>
-        </TouchableOpacity>
+        <Animated.View entering={FadeInDown.delay(250)}>
+          <TouchableOpacity
+            style={styles.startButton}
+            onPress={handleStartExam}
+          >
+            <LinearGradient
+              colors={['#6979F8', '#A5AFFB']}
+              style={styles.buttonGradient}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 0 }}
+            >
+              <Text style={styles.startButtonText}>Start Exam</Text>
+              <Ionicons name="arrow-forward" size={20} color="#FFF" style={styles.buttonIcon} />
+            </LinearGradient>
+          </TouchableOpacity>
+        </Animated.View>
       </View>
     </ScrollView>
   );
@@ -183,8 +287,34 @@ export default function SetUpSubjectAndType({ navigation }: SetUpSubjectAndTypeP
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
-    marginTop: 20,
+    backgroundColor: '#f8f9fa',
+  },
+  header: {
+    paddingTop: Platform.OS === 'ios' ? 50 : 20,
+    paddingBottom: 15,
+    paddingHorizontal: 20,
+    borderBottomLeftRadius: 20,
+    borderBottomRightRadius: 20,
+    flexDirection: 'row',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  backButton: {
+    padding: 5,
+  },
+  headerText: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#FFF',
+    flex: 1,
+    textAlign: 'center',
+  },
+  headerIcon: {
+    padding: 5,
   },
   content: {
     padding: 20,
@@ -192,100 +322,113 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     width: '100%',
   },
-  headerContainer: {
-    alignItems: 'center',
-    marginBottom: 20,
-  },
-  headerText: {
-    fontSize: 22,
-    fontWeight: 'bold',
-    color: '#333',
-  },
   formSection: {
     backgroundColor: '#fff',
-    borderRadius: 8,
-    padding: 15,
+    borderRadius: 16,
+    padding: 20,
     marginBottom: 20,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.2,
-    shadowRadius: 2,
-    elevation: 2,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    elevation: 3,
+  },
+  sectionHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 15,
   },
   sectionTitle: {
     fontSize: 18,
-    fontWeight: '500',
-    marginBottom: 15,
+    fontWeight: '600',
+    marginLeft: 8,
     color: '#444',
   },
-  radioGroup: {
+  toggleContainer: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
-    marginBottom: 10,
+    backgroundColor: '#F0F3FF',
+    borderRadius: 12,
+    padding: 4,
+    marginBottom: 20,
   },
-  radioOption: {
+  toggleOption: {
+    flex: 1,
+    paddingVertical: 12,
     flexDirection: 'row',
-    alignItems: 'center',
-    marginRight: 20,
-    marginBottom: 10,
-  },
-  radioButton: {
-    height: 20,
-    width: 20,
-    borderRadius: 10,
-    borderWidth: 2,
-    borderColor: '#007bff',
-    alignItems: 'center',
     justifyContent: 'center',
-    marginRight: 8,
+    alignItems: 'center',
+    borderRadius: 10,
   },
-  radioButtonSelected: {
-    borderColor: '#007bff',
+  toggleSelected: {
+    backgroundColor: '#6979F8',
+    shadowColor: '#6979F8',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 3,
   },
-  radioButtonInner: {
-    height: 10,
-    width: 10,
-    borderRadius: 5,
-    backgroundColor: '#007bff',
-  },
-  radioLabel: {
+  toggleText: {
+    color: '#6979F8',
     fontSize: 16,
-    color: '#333',
+    fontWeight: '500',
+    marginLeft: 6,
+  },
+  toggleTextSelected: {
+    color: '#FFF',
   },
   formGroup: {
-    marginTop: 15,
+    marginTop: 5,
   },
   label: {
     fontSize: 16,
     marginBottom: 8,
     color: '#555',
+    fontWeight: '500',
   },
   pickerContainer: {
     borderWidth: 1,
-    borderColor: '#ced4da',
-    borderRadius: 4,
+    borderColor: '#E0E0E0',
+    borderRadius: 12,
     backgroundColor: '#fff',
     marginBottom: 5,
     overflow: 'hidden',
   },
-  picker: {
+  pickerWithIcon: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingLeft: 10,
+  },
+  inputIcon: {
+    marginRight: 10,
+  },
+  pickerAndroid: {
     height: 50,
     width: '100%',
+    flex: 1,
+    color: '#333',
   },
   pickerIOS: {
-    height: 150,
+    height: 120,
     width: '100%',
+    flex: 1,
   },
   pickerItemIOS: {
     fontSize: 16,
   },
-  textInput: {
+  inputContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
     borderWidth: 1,
-    borderColor: '#ced4da',
-    borderRadius: 4,
-    padding: 10,
-    fontSize: 16,
+    borderColor: '#E0E0E0',
+    borderRadius: 12,
+    paddingHorizontal: 10,
     backgroundColor: '#fff',
+  },
+  textInput: {
+    flex: 1,
+    paddingVertical: 12,
+    fontSize: 16,
+    color: '#333',
   },
   helperText: {
     fontSize: 12,
@@ -296,17 +439,73 @@ const styles = StyleSheet.create({
   errorText: {
     color: '#dc3545',
   },
+  examTypeContainer: {
+    flexDirection: width > 500 ? 'row' : 'column',
+    justifyContent: 'space-between',
+    gap: 16,
+  },
+  examTypeCard: {
+    flex: width > 500 ? 1 : undefined,
+    borderWidth: 1,
+    borderColor: '#E0E0E0',
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: width > 500 ? 0 : 10,
+    alignItems: 'center',
+  },
+  examTypeSelected: {
+    borderColor: '#6979F8',
+    backgroundColor: '#F0F3FF',
+  },
+  examTypeIconContainer: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: '#F0F0F0',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  examTypeIconSelected: {
+    backgroundColor: '#E6E9FF',
+  },
+  examTypeTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    marginBottom: 4,
+    color: '#444',
+  },
+  examTypeTitleSelected: {
+    color: '#6979F8',
+  },
+  examTypeDescription: {
+    fontSize: 13,
+    color: '#777',
+    textAlign: 'center',
+  },
   startButton: {
-    backgroundColor: '#007bff',
-    borderRadius: 4,
-    padding: 15,
+    borderRadius: 12,
+    overflow: 'hidden',
+    marginTop: 10,
+    shadowColor: '#6979F8',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 5,
+  },
+  buttonGradient: {
+    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: 10,
+    paddingVertical: 15,
+    paddingHorizontal: 20,
   },
   startButtonText: {
     color: '#fff',
-    fontSize: 16,
-    fontWeight: '500',
+    fontSize: 18,
+    fontWeight: '600',
   },
+  buttonIcon: {
+    marginLeft: 8,
+  }
 });

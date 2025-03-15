@@ -97,7 +97,7 @@ export default function Login({ navigation }: LoginProps) {
               source={require('../../assets/icon.png')} 
               style={styles.logo} 
             />
-            <Text style={styles.appTitle}><Text style={{color:"green"}}>Neuro</Text> English</Text>
+            <Text style={styles.appTitle}><Text style={{color:"green"}}>Neuro's</Text> English</Text>
           </View>
 
           {alert && (

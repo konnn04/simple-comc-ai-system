@@ -3,6 +3,7 @@ import { StyleSheet, Text, View, TouchableOpacity, TextInput, ScrollView, Alert,
 import { authenticatedFetch } from '../../utils/api';
 import { HOST } from '../../constants/server';
 import { Audio, AVPlaybackStatus } from 'expo-av';
+import { Ionicons, MaterialIcons } from '@expo/vector-icons';
 
 interface Question {
   question: string;
@@ -116,10 +117,27 @@ export default function SingleExamTest({ navigation, route }: SingleExamTestProp
     // Cleanup function
     return () => {
       if (sound) {
-        sound.unloadAsync();
+        console.log('Unloading sound in cleanup');
+        sound.stopAsync().then(() => {
+          sound.unloadAsync();
+        }).catch(error => {
+          console.error('Error cleaning up audio:', error);
+        });
       }
     };
   }, [test]);
+
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('beforeRemove', () => {
+      if (sound) {
+        sound.stopAsync().catch(error => {
+          console.error('Error stopping audio during navigation:', error);
+        });
+      }
+    });
+
+    return unsubscribe;
+  }, [navigation, sound]);
 
   const onPlaybackStatusUpdate = (status: AVPlaybackStatus) => {
     if (status.isLoaded) {
@@ -346,8 +364,8 @@ export default function SingleExamTest({ navigation, route }: SingleExamTestProp
         index: 0,
         routes: [
           { name: 'Main' },
-          { 
-            name: 'SingleExamResults', 
+          {
+            name: 'SingleExamResults',
             params: {
               score: result.score,
               results: result.result,
@@ -537,24 +555,47 @@ export default function SingleExamTest({ navigation, route }: SingleExamTestProp
 
       <View style={styles.audioSection}>
         <View style={styles.audioPlayerContainer}>
-          {/* Play/Pause and Restart Buttons */}
-          <View style={styles.audioControlsRow}>
+          {/* Add top navigation controls */}
+          <View style={styles.topNavContainer}>
+            <TouchableOpacity
+              style={[styles.navIconButton, currentQuestionIndex === 0 ? styles.disabledButton : null]}
+              onPress={handlePrevQuestion}
+              disabled={currentQuestionIndex === 0}
+            >
+              <Ionicons name="chevron-back" size={28} color={currentQuestionIndex === 0 ? "#cccccc" : "#2196F3"} />
+            </TouchableOpacity>
+
+            <Text style={styles.questionIndicator}>
+              Question {currentQuestionIndex + 1} of {test.questions.length}
+            </Text>
+
+            <TouchableOpacity
+              style={[styles.navIconButton, currentQuestionIndex === test.questions.length - 1 ? styles.disabledButton : null]}
+              onPress={handleNextQuestion}
+              disabled={currentQuestionIndex === test.questions.length - 1}
+            >
+              <Ionicons name="chevron-forward" size={28} color={currentQuestionIndex === test.questions.length - 1 ? "#cccccc" : "#2196F3"} />
+            </TouchableOpacity>
+          </View>
+
+          {/* Audio Player Controls */}
+          <View style={styles.playerControls}>
             <TouchableOpacity
               style={styles.audioControlButton}
               onPress={handlePlayAudio}
             >
-              {isPlaying ? (
-                <Text style={styles.audioControlText}>⏸️ Pause</Text>
-              ) : (
-                <Text style={styles.audioControlText}>▶️ Play</Text>
-              )}
+              <Ionicons
+                name={isPlaying ? "pause-circle" : "play-circle"}
+                size={50}
+                color="#2196F3"
+              />
             </TouchableOpacity>
 
             <TouchableOpacity
-              style={styles.audioControlButton}
+              style={styles.audioRestartButton}
               onPress={handleRestartAudio}
             >
-              <Text style={styles.audioControlText}>🔄 Restart</Text>
+              <MaterialIcons name="replay" size={30} color="#2196F3" />
             </TouchableOpacity>
           </View>
 
@@ -574,12 +615,27 @@ export default function SingleExamTest({ navigation, route }: SingleExamTestProp
               <Text style={styles.timeText}>
                 {formatAudioTime(currentTime)} / {formatAudioTime(duration)}
               </Text>
-              <Text style={styles.playsRemaining}>
+              <Text style={[styles.playsRemaining, playCount >= 2 && styles.warningText]}>
                 {3 - playCount} plays remaining
               </Text>
             </View>
           </View>
         </View>
+      </View>
+
+// Replace the bottom navigation controls with a Submit button when on last question
+      <View style={styles.submitContainer}>
+        {currentQuestionIndex === test.questions.length - 1 && (
+          <TouchableOpacity
+            style={[styles.submitButton, isSubmitting && styles.disabledButton]}
+            onPress={handleSubmit}
+            disabled={isSubmitting}
+          >
+            <Text style={styles.submitButtonText}>
+              {isSubmitting ? 'Submitting...' : 'Submit Exam'}
+            </Text>
+          </TouchableOpacity>
+        )}
       </View>
       <View style={styles.progressInfo}>
         <Text style={styles.progressText}>
@@ -656,18 +712,6 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     borderWidth: 1,
     borderColor: '#ddd',
-  },
-  audioSection: {
-    backgroundColor: '#fff',
-    borderRadius: 10,
-    padding: 15,
-    marginBottom: 20,
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 5,
-    elevation: 2,
   },
   playButton: {
     backgroundColor: '#2196F3',
@@ -807,9 +851,6 @@ const styles = StyleSheet.create({
   disabledButton: {
     backgroundColor: '#cccccc',
   },
-  submitButton: {
-    backgroundColor: '#4CAF50',
-  },
   loadingText: {
     marginTop: 10,
     fontSize: 16,
@@ -821,53 +862,113 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginBottom: 20,
   },
-  audioPlayerContainer: {
-    width: '100%',
-  },
   audioControlsRow: {
     flexDirection: 'row',
     justifyContent: 'space-around',
     marginBottom: 10,
-  },
-  audioControlButton: {
-    backgroundColor: '#2196F3',
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderRadius: 5,
-    minWidth: 120,
-    alignItems: 'center',
   },
   audioControlText: {
     color: '#fff',
     fontWeight: 'bold',
     fontSize: 16,
   },
-  progressBarContainer: {
-    width: '100%',
-  },
-  progressBarBackground: {
-    height: 8,
-    backgroundColor: '#e0e0e0',
-    borderRadius: 4,
-    overflow: 'hidden',
-  },
-  progressBarFill: {
-    height: '100%',
-    backgroundColor: '#4CAF50',
-    borderRadius: 4,
-  },
-  timeDisplay: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginTop: 5,
-  },
-  timeText: {
-    fontSize: 14,
-    color: '#666',
-  },
-  playsRemaining: {
-    fontSize: 14,
-    fontWeight: 'bold',
-    color: playCount_ >= 2 ? '#f44336' : '#666',
-  },
+  audioSection: {
+  backgroundColor: '#fff',
+  borderRadius: 10,
+  padding: 15,
+  marginBottom: 20,
+  shadowColor: '#000',
+  shadowOffset: { width: 0, height: 2 },
+  shadowOpacity: 0.1,
+  shadowRadius: 5,
+  elevation: 2,
+},
+audioPlayerContainer: {
+  width: '100%',
+},
+topNavContainer: {
+  flexDirection: 'row',
+  justifyContent: 'space-between',
+  alignItems: 'center',
+  marginBottom: 15,
+  borderBottomWidth: 1,
+  borderBottomColor: '#eee',
+  paddingBottom: 10,
+},
+questionIndicator: {
+  fontSize: 16,
+  fontWeight: '500',
+  color: '#555',
+},
+navIconButton: {
+  padding: 5,
+},
+playerControls: {
+  flexDirection: 'row',
+  justifyContent: 'center',
+  alignItems: 'center',
+  marginVertical: 10,
+},
+audioControlButton: {
+  alignItems: 'center',
+  marginHorizontal: 10,
+},
+audioRestartButton: {
+  alignItems: 'center',
+  marginHorizontal: 10,
+},
+progressBarContainer: {
+  width: '100%',
+  marginTop: 10,
+},
+progressBarBackground: {
+  height: 6,
+  backgroundColor: '#e0e0e0',
+  borderRadius: 3,
+  overflow: 'hidden',
+},
+progressBarFill: {
+  height: '100%',
+  backgroundColor: '#4CAF50',
+  borderRadius: 3,
+},
+timeDisplay: {
+  flexDirection: 'row',
+  justifyContent: 'space-between',
+  marginTop: 8,
+},
+timeText: {
+  fontSize: 14,
+  color: '#666',
+},
+playsRemaining: {
+  fontSize: 14,
+  fontWeight: 'bold',
+  color: '#666',
+},
+warningText: {
+  color: '#f44336',
+},
+submitContainer: {
+  marginTop: 20,
+  alignItems: 'center',
+},
+submitButton: {
+  backgroundColor: '#4CAF50',
+  paddingVertical: 15,
+  paddingHorizontal: 30,
+  borderRadius: 30,
+  alignItems: 'center',
+  width: '80%',
+  shadowColor: '#000',
+  shadowOffset: { width: 0, height: 2 },
+  shadowOpacity: 0.1,
+  shadowRadius: 3,
+  elevation: 2,
+},
+submitButtonText: {
+  color: '#fff',
+  fontWeight: 'bold',
+  fontSize: 16,
+},
 });

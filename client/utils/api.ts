@@ -1,5 +1,6 @@
 import { HOST } from '../constants/server';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Alert } from 'react-native';
 
 interface ApiOptions {
   method?: string;
@@ -23,9 +24,11 @@ export const authenticatedFetch = async (
     const token = await AsyncStorage.getItem('authToken');
     
     if (!token) {
-      // No token found, redirect to login
+      // No token found, show message and redirect to login
+      Alert.alert('Session Expired', 'Please login again to continue');
       handleLogout(navigation);
-      throw new Error('Authentication token not found');
+      // Return a "fake" response object instead of throwing
+      return new Response(JSON.stringify({ message: 'Authentication required' }), { status: 401 });
     }
 
     // Prepare headers 
@@ -45,16 +48,31 @@ export const authenticatedFetch = async (
 
     // Check for authentication errors (401 Unauthorized or 403 Forbidden)
     if (response.status === 401 || response.status === 403) {
-      // Token is invalid or expired
-      console.log('Authentication failed:', response.status);
+      // Token is invalid or expired - show friendly message
+      Alert.alert('Session Expired', 'Your login session has expired. Please login again to continue.');
       handleLogout(navigation);
-      throw new Error('Authentication failed');
+      return response; // Return the actual response without throwing
     }
 
     return response;
+    
   } catch (error) {
     console.error('API call failed:', error);
-    throw error;
+    
+    // Show a user-friendly message instead of technical error
+    Alert.alert(
+      'Connection Error',
+      'Unable to connect to the server. Please check your internet connection and try again.'
+    );
+    
+    // For network errors, we might want to redirect to login as well
+    handleLogout(navigation);
+    
+    // Return a "fake" response instead of throwing an error
+    return new Response(
+      JSON.stringify({ message: 'Network error occurred' }), 
+      { status: 500 }
+    );
   }
 };
 
