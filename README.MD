@@ -160,7 +160,10 @@ flask run --debug
 
 ### Giao diện ứng dụng
 
-https://cdn.glitch.global/cf9e49a0-3aa2-4068-b3b9-c1c5cff10d14/ou.mp4
+
+https://github.com/user-attachments/assets/d2d91846-bca7-48cb-9deb-7cc55ab91878
+
+
 
 ## IV. KẾT
 
@@ -177,3 +180,10 @@ Kết quả nghiên cứu cho thấy ứng dụng có tiềm năng trở thành 
 ---
 
 *Dự án này được phát triển trong khuôn khổ Nghiên cứu khoa học sinh viên năm học 2024-2025, Trường Đại học Mở Thành phố Hồ Chí Minh.*
+
+## What's Changed
+* Thêm tính năng đánh giá câu hỏi by @konnn04 in https://github.com/konnn04/simple-comc-ai-system/pull/4
+* Hoàn thành (bản chưa hoàn thiện) by @konnn04 in https://github.com/konnn04/simple-comc-ai-system/pull/5
+
+
+**Full Changelog**: https://github.com/konnn04/simple-comc-ai-system/commits/0.0.1
