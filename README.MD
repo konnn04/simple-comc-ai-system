@@ -160,7 +160,7 @@ flask run --debug
 
 ### Giao diện ứng dụng
 
-https://github.com/konnn04/simple-comc-ai-system/raw/refs/heads/main/screenshot/ou.mp4
+https://cdn.glitch.global/cf9e49a0-3aa2-4068-b3b9-c1c5cff10d14/ou.mp4
 
 ## IV. KẾT
 
